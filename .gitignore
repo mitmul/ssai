@@ -1,0 +1,9 @@
+*.jpg
+*.png
+*.tif
+*.tiff
+
+data
+
+.DS_Store
+sftp-config.json

@@ -1,0 +1,180 @@
+name: "Multi_Plain_Mnih_NN_S_ReLU"
+input: "input_data"
+input_dim: 64
+input_dim: 3
+input_dim: 64
+input_dim: 64
+layers {
+  name: "augment1"
+  type: AUGMENT
+  bottom: "input_data"
+  top: "augment1"
+  augment_param {
+    # data
+    crop_size: 64
+    binarize: false
+    mean_normalize: true
+    divide: 48.519772
+    divide: 46.991936
+    divide: 49.015851
+  }
+}
+layers {
+  name: "conv2"
+  type: CONVOLUTION
+  bottom: "augment1"
+  top: "conv2"
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  convolution_param {
+    num_output: 64
+    kernel_size: 9
+    stride: 3
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layers {
+  name: "relu3"
+  type: RELU
+  bottom: "conv2"
+  top: "relu3"
+}
+
+layers {
+  name: "pool4"
+  type: POOLING
+  bottom: "relu3"
+  top: "pool4"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 1
+  }
+}
+
+layers {
+  name: "conv5"
+  type: CONVOLUTION
+  bottom: "pool4"
+  top: "conv5"
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  convolution_param {
+    num_output: 112
+    kernel_size: 7
+    stride: 2
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layers {
+  name: "relu6"
+  type: RELU
+  bottom: "conv5"
+  top: "relu6"
+}
+
+layers {
+  name: "conv7"
+  type: CONVOLUTION
+  bottom: "relu6"
+  top: "conv7"
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  convolution_param {
+    num_output: 80
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layers {
+  name: "relu8"
+  type: RELU
+  bottom: "conv7"
+  top: "relu8"
+}
+
+layers {
+  name: "fc9"
+  type: INNER_PRODUCT
+  bottom: "relu8"
+  top: "fc9"
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  inner_product_param {
+    num_output: 4096
+    weight_filler {
+      type: "xavier"
+    } 
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layers {
+  name: "relu10"
+  type: RELU
+  bottom: "fc9"
+  top: "relu10"
+}
+
+layers {
+  name: "fc11"
+  type: INNER_PRODUCT
+  bottom: "relu10"
+  top: "fc11"
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  inner_product_param {
+    num_output: 768
+    weight_filler {
+      type: "xavier"
+    } 
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layers {
+  name: "reshape12"
+  type: RESHAPE
+  bottom: "fc11"
+  top: "reshape12"
+  reshape_param {
+    channels: 3
+    height: 16
+    width: 16
+  }
+}
+layers {
+  name: "output"
+  type: SOFTMAX
+  bottom: "reshape12"
+  top: "output"
+}
+

@@ -1,0 +1,20 @@
+net: "../../models/Multi_Plain_Mnih_NN_S_ReLU/train_test.prototxt"
+test_iter: 100
+test_interval: 1000
+
+solver_type: ADAGRAD
+base_lr: 0.0005
+lr_policy: "fixed"
+weight_decay: 0.0005
+
+display: 1000
+max_iter: 1000000
+
+snapshot: 10000
+snapshot_prefix: "snapshots/Multi_Plain_Mnih_NN_S_ReLU"
+
+solver_mode: GPU
+device_id: 0
+
+random_seed: 1701
+
