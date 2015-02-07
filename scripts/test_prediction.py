@@ -101,4 +101,5 @@ if __name__ == '__main__':
                                           d_ch, d_height, d_width)
         cv.imwrite('pred_%s.png' % basename(img_fname), pred_img * 125)
         cv.imwrite('ortho_%s.png' % basename(img_fname), ortho_img)
+        np.save('pred_%s' % basename(img_fname), pred_img)
         print img_fname

@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 2.6)
 project(ssai)
 set(CMAKE_BUILD_TYPE "Release")
-set(CMAKE_CXX_FLAGS "-Wall -O3")
+set(CMAKE_CXX_FLAGS_RELEASE "-Wall -O3")
+# set(CMAKE_BUILD_TYPE "Debug")
+# set(CMAKE_CXX_FLAGS_DEBUG "-g")
 
 add_definitions(-DUSE_MKL)
 set(inc_dirs
@@ -13,6 +15,7 @@ set(inc_dirs
     /opt/intel/mkl/include
     $ENV{HOME}/Libraries/caffe/build/src
     $ENV{HOME}/Libraries/caffe/include
+    $ENV{HOME}/anaconda/include/python2.7
 )
 set(lib_dirs
     $ENV{HOME}/Libraries/caffe/build/lib
@@ -29,6 +32,9 @@ set(libs
     opencv_imgproc
     boost_system
     boost_filesystem
+    boost_python
+    boost_numpy
+    python2.7
 )
 include_directories(
     ${inc_dirs}
@@ -43,3 +49,12 @@ add_executable(compute_image_mean
 target_link_libraries(compute_image_mean
     ${libs}
 )
+
+
+add_library(ssai SHARED
+    src/ssai_tools.cpp
+)
+target_link_libraries(ssai
+    ${libs}
+)
+set_target_properties(ssai PROPERTIES PREFIX "")
