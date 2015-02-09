@@ -16,6 +16,12 @@ import os
 from os.path import basename
 from os.path import exists
 from multiprocessing import Queue, Process, Array
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--result_dir', '-d', type=str)
+args = parser.parse_args()
+print args
 
 ch = 3
 steps = 256
@@ -23,7 +29,7 @@ relax = 3
 pad = 24
 n_thread = 8
 
-result_dir = 'results/Multi_Plain_Mnih_NN_S_ReLU_2015-02-06_10-03-38'
+result_dir = args.result_dir
 label_dir = 'data/mass_merged/test/map'
 result_fns = glob.glob('%s/*.npy' % result_dir)
 n_results = len(result_fns)

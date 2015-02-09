@@ -3,11 +3,11 @@ test_iter: 100
 test_interval: 1000
 
 solver_type: SGD
-base_lr: 0.01
+base_lr: 0.0005
 
-lr_policy: "step"
-gamma: 0.9
-stepsize: 10000
+lr_policy: "fixed"
+# gamma: 0.9
+# stepsize: 10000
 
 momentum: 0.9
 weight_decay: 0.0002
@@ -19,7 +19,7 @@ snapshot: 10000
 snapshot_prefix: "snapshots/Multi_Plain_Mnih_NN_S_ReLU"
 
 solver_mode: GPU
-device_id: 0
+device_id: 1
 
 random_seed: 1701
 

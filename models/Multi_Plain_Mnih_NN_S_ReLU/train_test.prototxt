@@ -101,10 +101,12 @@ layers {
     kernel_size: 9
     stride: 3
     weight_filler {
-      type: "xavier"
+      type: "gaussian"
+      std: 0.01
     }
     bias_filler {
       type: "constant"
+      value: 1
     }
   }
 }
@@ -141,10 +143,12 @@ layers {
     kernel_size: 7
     stride: 2
     weight_filler {
-      type: "xavier"
+      type: "gaussian"
+      std: 0.005
     }
     bias_filler {
       type: "constant"
+      value: 1
     }
   }
 }
@@ -169,10 +173,12 @@ layers {
     kernel_size: 5
     stride: 1
     weight_filler {
-      type: "xavier"
+      type: "gaussian"
+      std: 0.005
     }
     bias_filler {
       type: "constant"
+      value: 1
     }
   }
 }
@@ -195,10 +201,12 @@ layers {
   inner_product_param {
     num_output: 4096
     weight_filler {
-      type: "xavier"
-    } 
+      type: "gaussian"
+      std: 0.01
+    }
     bias_filler {
       type: "constant"
+      value: 0
     }
   }
 }
@@ -210,9 +218,37 @@ layers {
 }
 
 layers {
-  name: "fc11"
+  name: "fc102"
   type: INNER_PRODUCT
   bottom: "relu10"
+  top: "fc102"
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  inner_product_param {
+    num_output: 4096
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layers {
+  name: "relu102"
+  type: RELU
+  bottom: "fc102"
+  top: "relu102"
+}
+
+layers {
+  name: "fc11"
+  type: INNER_PRODUCT
+  bottom: "relu102"
   top: "fc11"
   blobs_lr: 1
   blobs_lr: 2
@@ -221,10 +257,12 @@ layers {
   inner_product_param {
     num_output: 768
     weight_filler {
-      type: "xavier"
-    } 
+      type: "gaussian"
+      std: 0.01
+    }
     bias_filler {
       type: "constant"
+      value: 0
     }
   }
 }

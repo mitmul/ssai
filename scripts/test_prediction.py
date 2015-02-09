@@ -86,6 +86,7 @@ def get_predict(ortho, net, num,
 if __name__ == '__main__':
     model_fn = args.model
     weight_fn = args.weight
+    result_dir = args.model.replace('/%s' % basename(args.model), '')
 
     net = caffe.Net(model_fn, weight_fn)
     net.set_raw_scale('input_data', 255)
@@ -94,16 +95,16 @@ if __name__ == '__main__':
     l_ch, l_height, l_width = 3, 16, 16
     d_ch, d_height, d_width = 3, 64, 64
 
-    result_dir = args.model.replace(basename(args.model), '')
-    print result_dir
-    sys.exit()
-
     for img_fname in glob.glob('data/mass_merged/test/sat/*.tiff'):
         ortho = cv.imread(img_fname)
         pred_img, ortho_img = get_predict(ortho, net, num,
                                           l_ch, l_height, l_width,
                                           d_ch, d_height, d_width)
-        cv.imwrite('pred_%s.png' % basename(img_fname), pred_img * 125)
-        cv.imwrite('ortho_%s.png' % basename(img_fname), ortho_img)
-        np.save('pred_%s' % basename(img_fname), pred_img)
+        cv.imwrite('%s/pred_%s.png' % (result_dir, basename(img_fname)),
+                   pred_img * 125)
+        cv.imwrite('%s/ortho_%s.png' % (result_dir, basename(img_fname)),
+                   ortho_img)
+        np.save('%s/pred_%s' % (result_dir, basename(img_fname)),
+                pred_img)
+
         print img_fname

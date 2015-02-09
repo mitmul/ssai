@@ -69,4 +69,4 @@ def save_loss_curve(dname, fname='caffe.INFO'):
 
 
 if __name__ == '__main__':
-    save_loss_curve('./')
+    save_loss_curve('./', 'nohup.out')
