@@ -11,6 +11,7 @@ import cv2 as cv
 import re
 import glob
 import numpy as np
+import ctypes
 import os
 from os.path import basename
 from os.path import exists
@@ -22,19 +23,26 @@ relax = 3
 pad = 24
 n_thread = 8
 
-result_dir = 'results/Multi_Plain_Mnih_NN_S_ReLU_2015-02-06_12-20-13'
+result_dir = 'results/Multi_Plain_Mnih_NN_S_ReLU_2015-02-06_10-03-38'
 label_dir = 'data/mass_merged/test/map'
 result_fns = glob.glob('%s/*.npy' % result_dir)
 n_results = len(result_fns)
 
-# all_positive = Array('d', n_results * ch * steps)
-# all_prec_tp = Array('d', n_results * ch * steps)
-# all_true = Array('d', n_results * ch * steps)
-# all_recall_tp = Array('d', n_results * ch * steps)
-all_positive = np.zeros((n_results, ch, steps), dtype=np.int64)
-all_prec_tp = np.zeros((n_results, ch, steps), dtype=np.int64)
-all_true = np.zeros((n_results, ch, steps), dtype=np.int64)
-all_recall_tp = np.zeros((n_results, ch, steps), dtype=np.int64)
+all_positive_base = Array(ctypes.c_double, n_results * ch * steps)
+all_positive = np.ctypeslib.as_array(all_positive_base.get_obj())
+all_positive = all_positive.reshape((n_results, ch, steps))
+
+all_prec_tp_base = Array(ctypes.c_double, n_results * ch * steps)
+all_prec_tp = np.ctypeslib.as_array(all_prec_tp_base.get_obj())
+all_prec_tp = all_prec_tp.reshape((n_results, ch, steps))
+
+all_true_base = Array(ctypes.c_double, n_results * ch * steps)
+all_true = np.ctypeslib.as_array(all_true_base.get_obj())
+all_true = all_true.reshape((n_results, ch, steps))
+
+all_recall_tp_base = Array(ctypes.c_double, n_results * ch * steps)
+all_recall_tp = np.ctypeslib.as_array(all_recall_tp_base.get_obj())
+all_recall_tp = all_recall_tp.reshape((n_results, ch, steps))
 
 
 def makedirs(dname):
@@ -44,6 +52,7 @@ def makedirs(dname):
 
 def get_pre_rec(positive, prec_tp, true, recall_tp, steps):
     pre_rec = []
+    breakeven = []
     for t in range(steps):
         if positive[t] < prec_tp[t] or true[t] < recall_tp[t]:
             sys.exit('calculation is wrong')
@@ -51,8 +60,11 @@ def get_pre_rec(positive, prec_tp, true, recall_tp, steps):
             positive[t] if positive[t] > 0 else 0
         rec = float(recall_tp[t]) / true[t] if true[t] > 0 else 1
         pre_rec.append([pre, rec])
+        if pre != 1 and rec != 1 and pre > 0 and rec > 0:
+            breakeven.append([pre, rec])
     pre_rec = np.asarray(pre_rec)
-    breakeven_pt = np.abs(pre_rec[:, 0] - pre_rec[:, 1]).argmin()
+    breakeven = np.asarray(breakeven)
+    breakeven_pt = np.abs(breakeven[:, 0] - breakeven[:, 1]).argmin()
 
     return pre_rec, breakeven_pt
 
@@ -87,7 +99,7 @@ def worker_thread(result_fn_queue):
         cv.imwrite('%s/label_%s.png' % (out_dir, img_id), label * 125)
 
         for c in range(ch):
-            for t in range(1, steps):
+            for t in range(0, steps):
                 threshold = 1.0 / steps * t
                 pred_vals = np.array(
                     pred[:, :, c] >= threshold, dtype=np.int32)
@@ -129,10 +141,6 @@ if __name__ == '__main__':
     all_true = np.sum(all_true, axis=0)
     all_recall_tp = np.sum(all_recall_tp, axis=0)
     for c in range(ch):
-        print all_positive[c]
-        print all_prec_tp[c]
-        print all_true[c]
-        print all_recall_tp[c]
         pre_rec, breakeven_pt = get_pre_rec(
             all_positive[c], all_prec_tp[c],
             all_true[c], all_recall_tp[c], steps)

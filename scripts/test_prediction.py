@@ -94,7 +94,11 @@ if __name__ == '__main__':
     l_ch, l_height, l_width = 3, 16, 16
     d_ch, d_height, d_width = 3, 64, 64
 
-    for img_fname in glob.glob('../../data/mass_merged/test/sat/*.tiff'):
+    result_dir = args.model.replace(basename(args.model), '')
+    print result_dir
+    sys.exit()
+
+    for img_fname in glob.glob('data/mass_merged/test/sat/*.tiff'):
         ortho = cv.imread(img_fname)
         pred_img, ortho_img = get_predict(ortho, net, num,
                                           l_ch, l_height, l_width,
