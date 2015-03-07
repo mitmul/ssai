@@ -19,7 +19,7 @@ snapshot: 10000
 snapshot_prefix: "snapshots/Multi_Plain_Mnih_NN_S_ReLU"
 
 solver_mode: GPU
-device_id: 1
+device_id: 0
 
 random_seed: 1701
 
