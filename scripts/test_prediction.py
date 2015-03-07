@@ -16,7 +16,6 @@ args = parser.parse_args()
 print args
 
 caffe.set_mode_gpu()
-caffe.set_phase_test()
 caffe.set_device(0)
 
 
@@ -88,9 +87,8 @@ if __name__ == '__main__':
     weight_fn = args.weight
     result_dir = args.model.replace('/%s' % basename(args.model), '')
 
-    net = caffe.Net(model_fn, weight_fn)
-    net.set_raw_scale('input_data', 255)
-    net.set_channel_swap('input_data', (2, 1, 0))
+    net = caffe.Net(model_fn, weight_fn, caffe.TEST)
+
     num = 64
     l_ch, l_height, l_width = 3, 16, 16
     d_ch, d_height, d_width = 3, 64, 64

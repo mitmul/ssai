@@ -43,14 +43,6 @@ link_directories(
     ${lib_dirs}
 )
 
-add_executable(compute_image_mean
-    src/compute_image_mean.cpp
-)
-target_link_libraries(compute_image_mean
-    ${libs}
-)
-
-
 add_library(ssai SHARED
     src/ssai_tools.cpp
 )
