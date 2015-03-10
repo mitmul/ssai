@@ -1,10 +1,10 @@
-net: "../../models/Multi_Plain_Mnih_NN_S_ReLU/train_test.prototxt"
+net: "../../models/Multi_Plain_Mnih_NN_S_ReLU_Fixed/train_test.prototxt"
 test_iter: 100
 test_interval: 1000
 
-solver_type: ADAGRAD
+solver_type: SGD
 base_lr: 0.0005
-# momentum: 0.9
+momentum: 0.95
 weight_decay: 0.0002
 
 lr_policy: "fixed"
@@ -15,7 +15,7 @@ display: 1000
 max_iter: 1000000
 
 snapshot: 10000
-snapshot_prefix: "snapshots/Multi_Plain_Mnih_NN_S_ReLU"
+snapshot_prefix: "snapshots/Multi_Plain_Mnih_NN_S_ReLU_Fixed"
 
 solver_mode: GPU
 device_id: 0
