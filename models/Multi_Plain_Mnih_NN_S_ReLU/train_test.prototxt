@@ -53,6 +53,7 @@ layers {
   augment_param {
     # common
     rotate: true
+    flip: true
     # data
     crop_size: 64
     binarize: false

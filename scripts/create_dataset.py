@@ -3,7 +3,6 @@
 
 import shutil
 import os
-import sys
 import glob
 import lmdb
 import caffe
@@ -95,7 +94,6 @@ def create_patches(patch_size, sat_data_dir, map_data_dir, sat_out_dir,
             print sat_fn, map_fn
             return
 
-        bname = os.path.basename(sat_fn)
         sat_im = cv.imread(sat_fn, cv.IMREAD_COLOR)
         # histogram equalization
         # for ch in range(sat_im.shape[2]):

@@ -2,14 +2,14 @@ net: "../../models/Multi_Plain_Mnih_NN_S_ReLU/train_test.prototxt"
 test_iter: 100
 test_interval: 1000
 
-solver_type: SGD
-base_lr: 0.0005
+solver_type: ADAGRAD
+base_lr: 0.01
 
-lr_policy: "fixed"
-# gamma: 0.9
-# stepsize: 10000
+lr_policy: "step"
+gamma: 0.9
+stepsize: 10000
 
-momentum: 0.9
+# momentum: 0.9
 weight_decay: 0.0002
 
 display: 1000
