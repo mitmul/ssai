@@ -4,6 +4,8 @@
 *.tiff
 
 data
+results
+scripts/build
 
 .DS_Store
 sftp-config.json

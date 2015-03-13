@@ -1,4 +1,4 @@
-name: "Multi_Plain_Mnih_NN_S_ReLU"
+name: "NoPooling_S_ReLU"
 layer {
   name: "input_data"
   type: "Data"
@@ -6,7 +6,7 @@ layer {
   data_param {
     backend: LMDB
     source: "../../data/mass_merged/lmdb/train_sat"
-    batch_size: 128
+    batch_size: 64
   }
   include: { phase: TRAIN }
 }
@@ -17,7 +17,7 @@ layer {
   data_param {
     backend: LMDB
     source: "../../data/mass_merged/lmdb/train_map"
-    batch_size: 128
+    batch_size: 64
   }
   include: { phase: TRAIN }
 }
@@ -28,7 +28,7 @@ layer {
   data_param {
     backend: LMDB
     source: "../../data/mass_merged/lmdb/test_sat"
-    batch_size: 128
+    batch_size: 64
   }
   include: { phase: TEST }
 }
@@ -39,7 +39,7 @@ layer {
   data_param {
     backend: LMDB
     source: "../../data/mass_merged/lmdb/test_map"
-    batch_size: 128
+    batch_size: 64
   }
   include: { phase: TEST }
 }
@@ -53,7 +53,6 @@ layer {
   augment_param {
     # common
     rotate: true
-    flip: true
     # data
     crop_size: 64
     binarize: false
@@ -121,24 +120,10 @@ layer {
   bottom: "conv2"
   top: "relu3"
 }
-
-layer {
-  name: "pool4"
-  type: "Pooling"
-  bottom: "relu3"
-  top: "pool4"
-  pooling_param {
-    pool: STOCHASTIC
-    engine: CAFFE
-    kernel_size: 2
-    stride: 1
-  }
-}
-
 layer {
   name: "conv5"
   type: "Convolution"
-  bottom: "pool4"
+  bottom: "relu3"
   top: "conv5"
   param {
     lr_mult: 1

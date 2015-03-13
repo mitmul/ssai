@@ -8,7 +8,6 @@ sys.path.append('scripts/build')
 import matplotlib.pyplot as plt
 from ssai import relax_precision, relax_recall
 import cv2 as cv
-import re
 import glob
 import numpy as np
 import ctypes
