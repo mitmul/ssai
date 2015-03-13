@@ -4,7 +4,6 @@
 import os
 import glob
 import re
-import sys
 import caffe
 import numpy as np
 import cv2 as cv
