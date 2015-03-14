@@ -24,10 +24,14 @@ layer {
   type: "Convolution"
   bottom: "augment1"
   top: "conv2"
-  blobs_lr: 1
-  blobs_lr: 2
-  weight_decay: 1
-  weight_decay: 0
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 64
     kernel_size: 9
@@ -56,6 +60,7 @@ layer {
   top: "pool4"
   pooling_param {
     pool: STOCHASTIC
+    engine: CAFFE
     kernel_size: 2
     stride: 1
   }
@@ -66,10 +71,14 @@ layer {
   type: "Convolution"
   bottom: "pool4"
   top: "conv5"
-  blobs_lr: 1
-  blobs_lr: 2
-  weight_decay: 1
-  weight_decay: 0
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 112
     kernel_size: 7
@@ -96,10 +105,14 @@ layer {
   type: "Convolution"
   bottom: "relu6"
   top: "conv7"
-  blobs_lr: 1
-  blobs_lr: 2
-  weight_decay: 1
-  weight_decay: 0
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 80
     kernel_size: 5
@@ -126,10 +139,14 @@ layer {
   type: "InnerProduct"
   bottom: "relu8"
   top: "fc9"
-  blobs_lr: 1
-  blobs_lr: 2
-  weight_decay: 1
-  weight_decay: 0
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
   inner_product_param {
     num_output: 4096
     weight_filler {
@@ -148,44 +165,19 @@ layer {
   bottom: "fc9"
   top: "relu10"
 }
-
-layer {
-  name: "fc102"
-  type: "InnerProduct"
-  bottom: "relu10"
-  top: "fc102"
-  blobs_lr: 1
-  blobs_lr: 2
-  weight_decay: 1
-  weight_decay: 0
-  inner_product_param {
-    num_output: 4096
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-}
-layer {
-  name: "relu102"
-  type: "ReLU"
-  bottom: "fc102"
-  top: "relu102"
-}
-
 layer {
   name: "fc11"
   type: "InnerProduct"
-  bottom: "relu102"
+  bottom: "relu10"
   top: "fc11"
-  blobs_lr: 1
-  blobs_lr: 2
-  weight_decay: 1
-  weight_decay: 0
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
   inner_product_param {
     num_output: 768
     weight_filler {
