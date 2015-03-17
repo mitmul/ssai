@@ -13,13 +13,13 @@ momentum: 0.9
 weight_decay: 0.0002
 
 display: 100
-max_iter: 2000000
+max_iter: 1000000
 
 snapshot: 10000
 snapshot_prefix: "snapshots/Mnih_CNN"
 
 solver_mode: GPU
-device_id: 0
+device_id: 2
 
 random_seed: 1701
 
