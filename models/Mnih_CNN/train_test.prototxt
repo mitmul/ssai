@@ -1,4 +1,4 @@
-name: "Multi_Plain_Mnih_NN_S_ReLU"
+name: "Mnih_CNN_Dropout"
 layer {
   name: "input_data"
   type: "Data"
@@ -6,7 +6,7 @@ layer {
   data_param {
     backend: LMDB
     source: "../../data/mass_merged/lmdb/train_sat"
-    batch_size: 128
+    batch_size: 64
   }
   include: { phase: TRAIN }
 }
@@ -17,7 +17,7 @@ layer {
   data_param {
     backend: LMDB
     source: "../../data/mass_merged/lmdb/train_map"
-    batch_size: 128
+    batch_size: 64
   }
   include: { phase: TRAIN }
 }
@@ -28,7 +28,7 @@ layer {
   data_param {
     backend: LMDB
     source: "../../data/mass_merged/lmdb/test_sat"
-    batch_size: 128
+    batch_size: 64
   }
   include: { phase: TEST }
 }
@@ -39,7 +39,7 @@ layer {
   data_param {
     backend: LMDB
     source: "../../data/mass_merged/lmdb/test_map"
-    batch_size: 128
+    batch_size: 64
   }
   include: { phase: TEST }
 }
@@ -103,15 +103,13 @@ layer {
   }
   convolution_param {
     num_output: 64
-    kernel_size: 9
-    stride: 3
+    kernel_size: 16
+    stride: 4
     weight_filler {
-      type: "gaussian"
-      std: 0.01
+      type: "xavier"
     }
     bias_filler {
-      type: "constant"
-      value: 1
+      type: "xavier"
     }
   }
 }
@@ -121,20 +119,17 @@ layer {
   bottom: "conv2"
   top: "relu3"
 }
-
 layer {
   name: "pool4"
   type: "Pooling"
   bottom: "relu3"
   top: "pool4"
   pooling_param {
-    pool: STOCHASTIC
-    engine: CAFFE
+    pool: MAX
     kernel_size: 2
     stride: 1
   }
 }
-
 layer {
   name: "conv5"
   type: "Convolution"
@@ -150,15 +145,13 @@ layer {
   }
   convolution_param {
     num_output: 112
-    kernel_size: 7
-    stride: 2
+    kernel_size: 4
+    stride: 1
     weight_filler {
-      type: "gaussian"
-      std: 0.005
+      type: "xavier"
     }
     bias_filler {
-      type: "constant"
-      value: 1
+      type: "xavier"
     }
   }
 }
@@ -168,7 +161,6 @@ layer {
   bottom: "conv5"
   top: "relu6"
 }
-
 layer {
   name: "conv7"
   type: "Convolution"
@@ -184,15 +176,13 @@ layer {
   }
   convolution_param {
     num_output: 80
-    kernel_size: 5
+    kernel_size: 3
     stride: 1
     weight_filler {
-      type: "gaussian"
-      std: 0.005
+      type: "xavier"
     }
     bias_filler {
-      type: "constant"
-      value: 1
+      type: "xavier"
     }
   }
 }
@@ -202,7 +192,6 @@ layer {
   bottom: "conv7"
   top: "relu8"
 }
-
 layer {
   name: "fc9"
   type: "InnerProduct"
@@ -219,12 +208,10 @@ layer {
   inner_product_param {
     num_output: 4096
     weight_filler {
-      type: "gaussian"
-      std: 0.01
+      type: "xavier"
     }
     bias_filler {
-      type: "constant"
-      value: 0
+      type: "xavier"
     }
   }
 }
@@ -234,43 +221,10 @@ layer {
   bottom: "fc9"
   top: "relu10"
 }
-
-layer {
-  name: "fc102"
-  type: "InnerProduct"
-  bottom: "relu10"
-  top: "fc102"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  inner_product_param {
-    num_output: 4096
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-}
-layer {
-  name: "relu102"
-  type: "ReLU"
-  bottom: "fc102"
-  top: "relu102"
-}
-
 layer {
   name: "fc11"
   type: "InnerProduct"
-  bottom: "relu102"
+  bottom: "relu10"
   top: "fc11"
   param {
     lr_mult: 1
@@ -283,12 +237,10 @@ layer {
   inner_product_param {
     num_output: 768
     weight_filler {
-      type: "gaussian"
-      std: 0.01
+      type: "xavier"
     }
     bias_filler {
-      type: "constant"
-      value: 0
+      type: "xavier"
     }
   }
 }
@@ -311,9 +263,9 @@ layer {
   top: "predict_loss"
   loss_weight: 1
   softmax_cross_entropy_loss_param {
-    weights: 0
-    weights: 1.5
-    weights: 1.5
+    weights: 1
+    weights: 1
+    weights: 1
   }
 }
 layer {
@@ -324,4 +276,3 @@ layer {
   top: "error_rate"
   include: { phase: TEST }
 }
-

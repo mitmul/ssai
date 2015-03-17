@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import time
 from os.path import basename
 import glob
 import numpy as np
@@ -94,9 +95,11 @@ if __name__ == '__main__':
 
     for img_fname in glob.glob('data/mass_merged/test/sat/*.tiff'):
         ortho = cv.imread(img_fname)
+        st = time.time()
         pred_img, ortho_img = get_predict(ortho, net, num,
                                           l_ch, l_height, l_width,
                                           d_ch, d_height, d_width)
+        print time.time() - st, 'sec'
         cv.imwrite('%s/pred_%s.png' % (result_dir, basename(img_fname)),
                    pred_img * 125)
         cv.imwrite('%s/ortho_%s.png' % (result_dir, basename(img_fname)),

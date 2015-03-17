@@ -1,78 +1,14 @@
-name: "NoPooling_S_ReLU"
-layer {
-  name: "input_data"
-  type: "Data"
-  top: "input_data"
-  data_param {
-    backend: LMDB
-    source: "../../data/mass_merged/lmdb/train_sat"
-    batch_size: 64
-  }
-  include: { phase: TRAIN }
-}
-layer {
-  name: "input_label"
-  type: "Data"
-  top: "input_label"
-  data_param {
-    backend: LMDB
-    source: "../../data/mass_merged/lmdb/train_map"
-    batch_size: 64
-  }
-  include: { phase: TRAIN }
-}
-layer {
-  name: "input_data"
-  type: "Data"
-  top: "input_data"
-  data_param {
-    backend: LMDB
-    source: "../../data/mass_merged/lmdb/test_sat"
-    batch_size: 64
-  }
-  include: { phase: TEST }
-}
-layer {
-  name: "input_label"
-  type: "Data"
-  top: "input_label"
-  data_param {
-    backend: LMDB
-    source: "../../data/mass_merged/lmdb/test_map"
-    batch_size: 64
-  }
-  include: { phase: TEST }
-}
+name: "Mnih_CNN_Dropout"
+input: "input_data"
+input_dim: 64
+input_dim: 3
+input_dim: 64
+input_dim: 64
 layer {
   name: "augment1"
   type: "Augment"
   bottom: "input_data"
-  bottom: "input_label"
   top: "augment1"
-  top: "label"
-  augment_param {
-    # common
-    rotate: true
-    # data
-    crop_size: 64
-    binarize: false
-    mean_normalize: true
-    divide: 48.519772
-    divide: 46.991936
-    divide: 49.015851
-    # label
-    crop_size: 16
-    binarize: true
-  }
-  include: { phase: TRAIN }
-}
-layer {
-  name: "augment1"
-  type: "Augment"
-  bottom: "input_data"
-  bottom: "input_label"
-  top: "augment1"
-  top: "label"
   augment_param {
     # data
     crop_size: 64
@@ -81,11 +17,7 @@ layer {
     divide: 48.519772
     divide: 46.991936
     divide: 49.015851
-    # label
-    crop_size: 16
-    binarize: true
   }
-  include: { phase: TEST }
 }
 layer {
   name: "conv2"
@@ -102,8 +34,8 @@ layer {
   }
   convolution_param {
     num_output: 64
-    kernel_size: 9
-    stride: 3
+    kernel_size: 16
+    stride: 4
     weight_filler {
       type: "gaussian"
       std: 0.01
@@ -121,9 +53,20 @@ layer {
   top: "relu3"
 }
 layer {
+  name: "pool4"
+  type: "Pooling"
+  bottom: "relu3"
+  top: "pool4"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 1
+  }
+}
+layer {
   name: "conv5"
   type: "Convolution"
-  bottom: "relu3"
+  bottom: "pool4"
   top: "conv5"
   param {
     lr_mult: 1
@@ -135,8 +78,8 @@ layer {
   }
   convolution_param {
     num_output: 112
-    kernel_size: 7
-    stride: 2
+    kernel_size: 4
+    stride: 1
     weight_filler {
       type: "gaussian"
       std: 0.005
@@ -153,7 +96,6 @@ layer {
   bottom: "conv5"
   top: "relu6"
 }
-
 layer {
   name: "conv7"
   type: "Convolution"
@@ -169,7 +111,7 @@ layer {
   }
   convolution_param {
     num_output: 80
-    kernel_size: 5
+    kernel_size: 3
     stride: 1
     weight_filler {
       type: "gaussian"
@@ -187,7 +129,6 @@ layer {
   bottom: "conv7"
   top: "relu8"
 }
-
 layer {
   name: "fc9"
   type: "InnerProduct"
@@ -219,44 +160,20 @@ layer {
   bottom: "fc9"
   top: "relu10"
 }
-
 layer {
-  name: "fc102"
-  type: "InnerProduct"
+  name: "drop11"
+  type: "Dropout"
   bottom: "relu10"
-  top: "fc102"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  inner_product_param {
-    num_output: 4096
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  top: "drop11"
+  dropout_param {
+    dropout_ratio: 0.5
   }
 }
 layer {
-  name: "relu102"
-  type: "ReLU"
-  bottom: "fc102"
-  top: "relu102"
-}
-
-layer {
-  name: "fc11"
+  name: "fc12"
   type: "InnerProduct"
-  bottom: "relu102"
-  top: "fc11"
+  bottom: "drop11"
+  top: "fc12"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -278,10 +195,10 @@ layer {
   }
 }
 layer {
-  name: "reshape12"
+  name: "reshape13"
   type: "Reshape"
-  bottom: "fc11"
-  top: "reshape12"
+  bottom: "fc12"
+  top: "reshape13"
   reshape_param {
     channels: 3
     height: 16
@@ -289,24 +206,9 @@ layer {
   }
 }
 layer {
-  name: "predict_loss"
-  type: "SoftmaxCrossEntropyLoss"
-  bottom: "reshape12"
-  bottom: "label"
-  top: "predict_loss"
-  loss_weight: 1
-  softmax_cross_entropy_loss_param {
-    weights: 0
-    weights: 1.5
-    weights: 1.5
-  }
-}
-layer {
-  name: "precision_recall_loss"
-  type: "PrecisionRecallLoss"
-  bottom: "reshape12"
-  bottom: "label"
-  top: "error_rate"
-  include: { phase: TEST }
+  name: "output"
+  type: "Softmax"
+  bottom: "reshape13"
+  top: "output"
 }
 

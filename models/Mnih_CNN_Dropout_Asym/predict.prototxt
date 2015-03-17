@@ -1,4 +1,4 @@
-name: "Multi_Plain_Mnih_NN_S_ReLU"
+name: "Mnih_CNN_Dropout_Asym"
 input: "input_data"
 input_dim: 64
 input_dim: 3
@@ -24,14 +24,18 @@ layer {
   type: "Convolution"
   bottom: "augment1"
   top: "conv2"
-  blobs_lr: 1
-  blobs_lr: 2
-  weight_decay: 1
-  weight_decay: 0
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 64
-    kernel_size: 9
-    stride: 3
+    kernel_size: 16
+    stride: 4
     weight_filler {
       type: "gaussian"
       std: 0.01
@@ -48,32 +52,34 @@ layer {
   bottom: "conv2"
   top: "relu3"
 }
-
 layer {
   name: "pool4"
   type: "Pooling"
   bottom: "relu3"
   top: "pool4"
   pooling_param {
-    pool: STOCHASTIC
+    pool: MAX
     kernel_size: 2
     stride: 1
   }
 }
-
 layer {
   name: "conv5"
   type: "Convolution"
   bottom: "pool4"
   top: "conv5"
-  blobs_lr: 1
-  blobs_lr: 2
-  weight_decay: 1
-  weight_decay: 0
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 112
-    kernel_size: 7
-    stride: 2
+    kernel_size: 4
+    stride: 1
     weight_filler {
       type: "gaussian"
       std: 0.005
@@ -90,19 +96,22 @@ layer {
   bottom: "conv5"
   top: "relu6"
 }
-
 layer {
   name: "conv7"
   type: "Convolution"
   bottom: "relu6"
   top: "conv7"
-  blobs_lr: 1
-  blobs_lr: 2
-  weight_decay: 1
-  weight_decay: 0
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
   convolution_param {
     num_output: 80
-    kernel_size: 5
+    kernel_size: 3
     stride: 1
     weight_filler {
       type: "gaussian"
@@ -120,16 +129,19 @@ layer {
   bottom: "conv7"
   top: "relu8"
 }
-
 layer {
   name: "fc9"
   type: "InnerProduct"
   bottom: "relu8"
   top: "fc9"
-  blobs_lr: 1
-  blobs_lr: 2
-  weight_decay: 1
-  weight_decay: 0
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
   inner_product_param {
     num_output: 4096
     weight_filler {
@@ -148,44 +160,28 @@ layer {
   bottom: "fc9"
   top: "relu10"
 }
-
 layer {
-  name: "fc102"
-  type: "InnerProduct"
+  name: "drop11"
+  type: "Dropout"
   bottom: "relu10"
-  top: "fc102"
-  blobs_lr: 1
-  blobs_lr: 2
-  weight_decay: 1
-  weight_decay: 0
-  inner_product_param {
-    num_output: 4096
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
+  top: "drop11"
+  dropout_param {
+    dropout_ratio: 0.5
   }
 }
 layer {
-  name: "relu102"
-  type: "ReLU"
-  bottom: "fc102"
-  top: "relu102"
-}
-
-layer {
-  name: "fc11"
+  name: "fc12"
   type: "InnerProduct"
-  bottom: "relu102"
-  top: "fc11"
-  blobs_lr: 1
-  blobs_lr: 2
-  weight_decay: 1
-  weight_decay: 0
+  bottom: "drop11"
+  top: "fc12"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
   inner_product_param {
     num_output: 768
     weight_filler {
@@ -199,10 +195,10 @@ layer {
   }
 }
 layer {
-  name: "reshape12"
+  name: "reshape13"
   type: "Reshape"
-  bottom: "fc11"
-  top: "reshape12"
+  bottom: "fc12"
+  top: "reshape13"
   reshape_param {
     channels: 3
     height: 16
@@ -212,7 +208,7 @@ layer {
 layer {
   name: "output"
   type: "Softmax"
-  bottom: "reshape12"
+  bottom: "reshape13"
   top: "output"
 }
 
