@@ -6,7 +6,7 @@ layer {
   data_param {
     backend: LMDB
     source: "../../data/mass_merged/lmdb/train_sat"
-    batch_size: 64
+    batch_size: 128
   }
   include: { phase: TRAIN }
 }
@@ -17,7 +17,7 @@ layer {
   data_param {
     backend: LMDB
     source: "../../data/mass_merged/lmdb/train_map"
-    batch_size: 64
+    batch_size: 128
   }
   include: { phase: TRAIN }
 }
