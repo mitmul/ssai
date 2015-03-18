@@ -5,7 +5,7 @@ layer {
   top: "input_data"
   data_param {
     backend: LMDB
-    source: "../../data/vmnih/mass_merged/lmdb/train_sat.lmdb"
+    source: "../../data/mass_merged/lmdb/train_sat.lmdb"
     batch_size: 128
   }
   include: { phase: TRAIN }
@@ -16,7 +16,7 @@ layer {
   top: "input_label"
   data_param {
     backend: LMDB
-    source: "../../data/vmnih/mass_merged/lmdb/train_map.lmdb"
+    source: "../../data/mass_merged/lmdb/train_map.lmdb"
     batch_size: 128
   }
   include: { phase: TRAIN }
@@ -27,7 +27,7 @@ layer {
   top: "input_data"
   data_param {
     backend: LMDB
-    source: "../../data/vmnih/mass_merged/lmdb/test_sat.lmdb"
+    source: "../../data/mass_merged/lmdb/test_sat.lmdb"
     batch_size: 128
   }
   include: { phase: TEST }
@@ -38,7 +38,7 @@ layer {
   top: "input_label"
   data_param {
     backend: LMDB
-    source: "../../data/vmnih/mass_merged/lmdb/test_map.lmdb"
+    source: "../../data/mass_merged/lmdb/test_map.lmdb"
     batch_size: 128
   }
   include: { phase: TEST }

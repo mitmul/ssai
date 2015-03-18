@@ -26,7 +26,7 @@ def data_layer(number, bottom, object_type):
   top: "input_data"
   data_param {{
     backend: LMDB
-    source: "../../data/vmnih/mass_{object_type}/{dataset}/train_sat.lmdb"
+    source: "../../data/mass_{object_type}/{dataset}/train_sat.lmdb"
     batch_size: {batch_size}
   }}
   include: {{ phase: TRAIN }}
@@ -37,7 +37,7 @@ layer {{
   top: "input_label"
   data_param {{
     backend: LMDB
-    source: "../../data/vmnih/mass_{object_type}/{dataset}/train_map.lmdb"
+    source: "../../data/mass_{object_type}/{dataset}/train_map.lmdb"
     batch_size: {batch_size}
   }}
   include: {{ phase: TRAIN }}
@@ -48,7 +48,7 @@ layer {{
   top: "input_data"
   data_param {{
     backend: LMDB
-    source: "../../data/vmnih/mass_{object_type}/{dataset}/test_sat.lmdb"
+    source: "../../data/mass_{object_type}/{dataset}/test_sat.lmdb"
     batch_size: {batch_size}
   }}
   include: {{ phase: TEST }}
@@ -59,7 +59,7 @@ layer {{
   top: "input_label"
   data_param {{
     backend: LMDB
-    source: "../../data/vmnih/mass_{object_type}/{dataset}/test_map.lmdb"
+    source: "../../data/mass_{object_type}/{dataset}/test_map.lmdb"
     batch_size: {batch_size}
   }}
   include: {{ phase: TEST }}
