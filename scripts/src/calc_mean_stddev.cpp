@@ -92,7 +92,8 @@ std::vector<float> calc_mean(const std::string &db_fname) {
     for (int i = 0; i < dim; ++i) {
       mean_values[c] += sum_blob.data(dim * c + i);
     }
-    LOG(INFO) << "mean_value channel [" << c << "]:" << mean_values[c] / dim;
+    mean_values[c] /= dim;
+    LOG(INFO) << "mean_value channel [" << c << "]:" << mean_values[c];
   }
 
   return mean_values;
@@ -148,9 +149,6 @@ void calc_stddev(
     if (count % 10000 == 0) {
       LOG(INFO) << "Processed " << files << " files.";
       LOG(INFO) << "count:" << count;
-      for (int c = 0; c < channels; ++c) {
-        LOG(INFO) << "stddev:" << stddev_values[c];
-      }
     }
     cursor->Next();
   }
@@ -160,7 +158,7 @@ void calc_stddev(
   }
   LOG(INFO) << "Finished Iteration";
 
-    std::cout.precision(15);
+  std::cout.precision(15);
   LOG(INFO) << "Number of channels: " << datum.channels();
   for (int c = 0; c < datum.channels(); ++c) {
     stddev_values[c] /= (double)count;
@@ -180,7 +178,7 @@ int main(int argc, char **argv) {
   gflags::SetUsageMessage("Compute the mean_image of a set of images given by"
                           " a leveldb/lmdb or a list of images\n"
                           "Usage:\n"
-                          "    compute_image_mean INPUT_DB [OUTPUT_FILE]\n");
+                          "    compute_image_mean INPUT_DB\n");
 
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 

@@ -95,9 +95,6 @@ def create_patches(patch_size, sat_data_dir, map_data_dir, sat_out_dir,
             return
 
         sat_im = cv.imread(sat_fn, cv.IMREAD_COLOR)
-        # histogram equalization
-        # for ch in range(sat_im.shape[2]):
-        #     sat_im[:, :, ch] = cv.equalizeHist(sat_im[:, :, ch])
         map_im = cv.imread(map_fn, cv.IMREAD_GRAYSCALE)
 
         for y in range(0, sat_im.shape[0], stride):
