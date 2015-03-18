@@ -58,9 +58,9 @@ layer {
     crop_size: 64
     binarize: false
     mean_normalize: true
-    divide: 48.519772
-    divide: 46.991936
-    divide: 49.015851
+    divide: 48.524406
+    divide: 46.994726
+    divide: 49.018684
     # label
     crop_size: 16
     binarize: true
@@ -79,9 +79,9 @@ layer {
     crop_size: 64
     binarize: false
     mean_normalize: true
-    divide: 48.519772
-    divide: 46.991936
-    divide: 49.015851
+    divide: 48.524406
+    divide: 46.994726
+    divide: 49.018684
     # label
     crop_size: 16
     binarize: true

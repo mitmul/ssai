@@ -16,6 +16,7 @@ Extract building and road from aerial imagery
 it will create
 - train: 3849568 patches
     - mean: [73.5661, 82.3104, 80.6461]
+    - stddev: [48.524406, 46.994726, 49.018684]
 - valid: 123904 patches
 - test: 309654 patches
 
