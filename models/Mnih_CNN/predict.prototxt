@@ -24,14 +24,6 @@ layer {
   type: "Convolution"
   bottom: "augment1"
   top: "conv2"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
   convolution_param {
     num_output: 64
     kernel_size: 16
@@ -40,7 +32,7 @@ layer {
       type: "xavier"
     }
     bias_filler {
-      type: "xavier"
+      type: "constant"
     }
   }
 }
@@ -66,14 +58,6 @@ layer {
   type: "Convolution"
   bottom: "pool4"
   top: "conv5"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
   convolution_param {
     num_output: 112
     kernel_size: 4
@@ -82,7 +66,7 @@ layer {
       type: "xavier"
     }
     bias_filler {
-      type: "xavier"
+      type: "constant"
     }
   }
 }
@@ -97,14 +81,6 @@ layer {
   type: "Convolution"
   bottom: "relu6"
   top: "conv7"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
   convolution_param {
     num_output: 80
     kernel_size: 3
@@ -113,7 +89,7 @@ layer {
       type: "xavier"
     }
     bias_filler {
-      type: "xavier"
+      type: "constant"
     }
   }
 }
@@ -128,21 +104,13 @@ layer {
   type: "InnerProduct"
   bottom: "relu8"
   top: "fc9"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
   inner_product_param {
     num_output: 4096
     weight_filler {
       type: "xavier"
     }
     bias_filler {
-      type: "xavier"
+      type: "constant"
     }
   }
 }
@@ -157,21 +125,13 @@ layer {
   type: "InnerProduct"
   bottom: "relu10"
   top: "fc11"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
   inner_product_param {
     num_output: 768
     weight_filler {
       type: "xavier"
     }
     bias_filler {
-      type: "xavier"
+      type: "constant"
     }
   }
 }
@@ -188,8 +148,7 @@ layer {
 }
 layer {
   name: "output"
-  type: "Softmax"
+  type: "SOFTMAX"
   bottom: "reshape12"
   top: "output"
 }
-

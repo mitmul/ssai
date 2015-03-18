@@ -5,6 +5,7 @@ import sys
 import matplotlib
 matplotlib.use('Agg')
 sys.path.append('scripts/build')
+sys.path.append('../../scripts/build')
 import matplotlib.pyplot as plt
 from ssai import relax_precision, relax_recall
 import cv2 as cv
@@ -18,8 +19,8 @@ from multiprocessing import Queue, Process, Array
 import argparse
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--map_dir', '-i', type=str)
 parser.add_argument('--result_dir', '-d', type=str)
-parser.add_argument('--mode', '-m', type=str, default='test')
 args = parser.parse_args()
 print args
 
@@ -30,9 +31,11 @@ pad = 24
 n_thread = 8
 
 result_dir = args.result_dir
-label_dir = 'data/mass_merged/%s/map' % args.mode
+n_iter = int(result_dir.split('_')[-1])
+label_dir = args.map_dir
 result_fns = glob.glob('%s/*.npy' % result_dir)
 n_results = len(result_fns)
+eval_dir = '%s/evaluation_%d' % (result_dir, n_iter)
 
 all_positive_base = Array(ctypes.c_double, n_results * ch * steps)
 all_positive = np.ctypeslib.as_array(all_positive_base.get_obj())
@@ -95,7 +98,7 @@ def worker_thread(result_fn_queue):
             break
 
         img_id = basename(result_fn).split('pred_')[-1].split('.tiff')[0]
-        out_dir = '%s/evaluation/%s' % (result_dir, img_id)
+        out_dir = '%s/%s' % (eval_dir, img_id)
         makedirs(out_dir)
 
         label = cv.imread('%s/%s.tif' %
@@ -151,7 +154,7 @@ if __name__ == '__main__':
             all_positive[c], all_prec_tp[c],
             all_true[c], all_recall_tp[c], steps)
         draw_pre_rec_curve(pre_rec, breakeven_pt)
-        plt.savefig('%s/evaluation/pr_curve_%d.png' % (result_dir, c))
-        np.save('%s/evaluation/pre_rec_%d' % (result_dir, c), pre_rec)
+        plt.savefig('%s/pr_curve_%d.png' % (eval_dir, c))
+        np.save('%s/pre_rec_%d' % (eval_dir, c), pre_rec)
 
         print pre_rec[breakeven_pt]

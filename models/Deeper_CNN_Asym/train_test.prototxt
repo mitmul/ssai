@@ -1,11 +1,11 @@
-name: "Mnih_CNN_Quick"
+name: "Deeper_CNN_Asym"
 layer {
   name: "input_data"
   type: "Data"
   top: "input_data"
   data_param {
     backend: LMDB
-    source: "../../data/mass_merged/lmdb/train_sat"
+    source: "../../data/vmnih/mass_merged/lmdb/train_sat.lmdb"
     batch_size: 128
   }
   include: { phase: TRAIN }
@@ -16,7 +16,7 @@ layer {
   top: "input_label"
   data_param {
     backend: LMDB
-    source: "../../data/mass_merged/lmdb/train_map"
+    source: "../../data/vmnih/mass_merged/lmdb/train_map.lmdb"
     batch_size: 128
   }
   include: { phase: TRAIN }
@@ -27,8 +27,8 @@ layer {
   top: "input_data"
   data_param {
     backend: LMDB
-    source: "../../data/mass_merged/lmdb/test_sat"
-    batch_size: 64
+    source: "../../data/vmnih/mass_merged/lmdb/test_sat.lmdb"
+    batch_size: 128
   }
   include: { phase: TEST }
 }
@@ -38,8 +38,8 @@ layer {
   top: "input_label"
   data_param {
     backend: LMDB
-    source: "../../data/mass_merged/lmdb/test_map"
-    batch_size: 64
+    source: "../../data/vmnih/mass_merged/lmdb/test_map.lmdb"
+    batch_size: 128
   }
   include: { phase: TEST }
 }
@@ -93,23 +93,15 @@ layer {
   type: "Convolution"
   bottom: "augment1"
   top: "conv2"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
   convolution_param {
     num_output: 64
-    kernel_size: 16
-    stride: 4
+    kernel_size: 9
+    stride: 1
     weight_filler {
       type: "xavier"
     }
     bias_filler {
-      type: "xavier"
+      type: "constant"
     }
   }
 }
@@ -120,135 +112,115 @@ layer {
   top: "relu3"
 }
 layer {
-  name: "pool4"
-  type: "Pooling"
-  bottom: "relu3"
-  top: "pool4"
-  pooling_param {
-    pool: MAX
-    kernel_size: 2
-    stride: 1
-  }
-}
-layer {
-  name: "conv5"
+  name: "conv4"
   type: "Convolution"
-  bottom: "pool4"
-  top: "conv5"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
+  bottom: "relu3"
+  top: "conv4"
   convolution_param {
-    num_output: 112
-    kernel_size: 4
+    num_output: 128
+    kernel_size: 7
     stride: 1
     weight_filler {
       type: "xavier"
     }
     bias_filler {
-      type: "xavier"
+      type: "constant"
     }
   }
 }
 layer {
-  name: "relu6"
+  name: "relu5"
   type: "ReLU"
-  bottom: "conv5"
-  top: "relu6"
+  bottom: "conv4"
+  top: "relu5"
 }
 layer {
-  name: "conv7"
+  name: "conv6"
   type: "Convolution"
-  bottom: "relu6"
-  top: "conv7"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
+  bottom: "relu5"
+  top: "conv6"
   convolution_param {
-    num_output: 80
+    num_output: 128
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu7"
+  type: "ReLU"
+  bottom: "conv6"
+  top: "relu7"
+}
+layer {
+  name: "conv8"
+  type: "Convolution"
+  bottom: "relu7"
+  top: "conv8"
+  convolution_param {
+    num_output: 128
     kernel_size: 3
     stride: 1
     weight_filler {
       type: "xavier"
     }
     bias_filler {
-      type: "xavier"
+      type: "constant"
     }
   }
 }
 layer {
-  name: "relu8"
+  name: "relu9"
   type: "ReLU"
-  bottom: "conv7"
-  top: "relu8"
+  bottom: "conv8"
+  top: "relu9"
 }
 layer {
-  name: "fc9"
+  name: "fc10"
   type: "InnerProduct"
-  bottom: "relu8"
-  top: "fc9"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
+  bottom: "relu9"
+  top: "fc10"
   inner_product_param {
     num_output: 4096
     weight_filler {
       type: "xavier"
     }
     bias_filler {
-      type: "xavier"
+      type: "constant"
     }
   }
 }
 layer {
-  name: "relu10"
+  name: "relu11"
   type: "ReLU"
-  bottom: "fc9"
-  top: "relu10"
+  bottom: "fc10"
+  top: "relu11"
 }
 layer {
-  name: "fc11"
+  name: "fc12"
   type: "InnerProduct"
-  bottom: "relu10"
-  top: "fc11"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
+  bottom: "relu11"
+  top: "fc12"
   inner_product_param {
     num_output: 768
     weight_filler {
       type: "xavier"
     }
     bias_filler {
-      type: "xavier"
+      type: "constant"
     }
   }
 }
 layer {
-  name: "reshape12"
+  name: "reshape13"
   type: "Reshape"
-  bottom: "fc11"
-  top: "reshape12"
+  bottom: "fc12"
+  top: "reshape13"
   reshape_param {
     channels: 3
     height: 16
@@ -257,21 +229,21 @@ layer {
 }
 layer {
   name: "predict_loss"
-  type: "SoftmaxCrossEntropyLoss"
-  bottom: "reshape12"
+  type: "SOFTMAXCrossEntropyLoss"
+  bottom: "reshape13"
   bottom: "label"
   top: "predict_loss"
   loss_weight: 1
   softmax_cross_entropy_loss_param {
-    weights: 1
-    weights: 1
-    weights: 1
+    weights: 0
+    weights: 1.5
+    weights: 1.5
   }
 }
 layer {
   name: "precision_recall_loss"
   type: "PrecisionRecallLoss"
-  bottom: "reshape12"
+  bottom: "reshape13"
   bottom: "label"
   top: "error_rate"
   include: { phase: TEST }

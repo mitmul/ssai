@@ -1,4 +1,4 @@
-name: "Mnih_CNN_Asym"
+name: "Mnih_CNN_BN_Asym"
 input: "input_data"
 input_dim: 64
 input_dim: 3
@@ -37,16 +37,40 @@ layer {
   }
 }
 layer {
-  name: "relu3"
-  type: "ReLU"
+  name: "bn3"
+  type: "BN"
   bottom: "conv2"
-  top: "relu3"
+  top: "bn3"
+  param {
+    lr_mult: 1.00001
+    decay_mult: 0
+  }
+  param {
+    lr_mult: 1.00001
+    decay_mult: 0
+  }
+  bn_param {
+    scale_filler {
+      type: "constant"
+      value: 1
+    }
+    shift_filler {
+      type: "constant"
+      value: 0.001
+    }
+  }
 }
 layer {
-  name: "pool4"
+  name: "relu4"
+  type: "ReLU"
+  bottom: "bn3"
+  top: "relu4"
+}
+layer {
+  name: "pool5"
   type: "Pooling"
-  bottom: "relu3"
-  top: "pool4"
+  bottom: "relu4"
+  top: "pool5"
   pooling_param {
     pool: MAX
     kernel_size: 2
@@ -54,10 +78,10 @@ layer {
   }
 }
 layer {
-  name: "conv5"
+  name: "conv6"
   type: "Convolution"
-  bottom: "pool4"
-  top: "conv5"
+  bottom: "pool5"
+  top: "conv6"
   convolution_param {
     num_output: 112
     kernel_size: 4
@@ -71,16 +95,40 @@ layer {
   }
 }
 layer {
-  name: "relu6"
-  type: "ReLU"
-  bottom: "conv5"
-  top: "relu6"
+  name: "bn7"
+  type: "BN"
+  bottom: "conv6"
+  top: "bn7"
+  param {
+    lr_mult: 1.00001
+    decay_mult: 0
+  }
+  param {
+    lr_mult: 1.00001
+    decay_mult: 0
+  }
+  bn_param {
+    scale_filler {
+      type: "constant"
+      value: 1
+    }
+    shift_filler {
+      type: "constant"
+      value: 0.001
+    }
+  }
 }
 layer {
-  name: "conv7"
+  name: "relu8"
+  type: "ReLU"
+  bottom: "bn7"
+  top: "relu8"
+}
+layer {
+  name: "conv9"
   type: "Convolution"
-  bottom: "relu6"
-  top: "conv7"
+  bottom: "relu8"
+  top: "conv9"
   convolution_param {
     num_output: 80
     kernel_size: 3
@@ -94,16 +142,40 @@ layer {
   }
 }
 layer {
-  name: "relu8"
-  type: "ReLU"
-  bottom: "conv7"
-  top: "relu8"
+  name: "bn10"
+  type: "BN"
+  bottom: "conv9"
+  top: "bn10"
+  param {
+    lr_mult: 1.00001
+    decay_mult: 0
+  }
+  param {
+    lr_mult: 1.00001
+    decay_mult: 0
+  }
+  bn_param {
+    scale_filler {
+      type: "constant"
+      value: 1
+    }
+    shift_filler {
+      type: "constant"
+      value: 0.001
+    }
+  }
 }
 layer {
-  name: "fc9"
+  name: "relu11"
+  type: "ReLU"
+  bottom: "bn10"
+  top: "relu11"
+}
+layer {
+  name: "fc12"
   type: "InnerProduct"
-  bottom: "relu8"
-  top: "fc9"
+  bottom: "relu11"
+  top: "fc12"
   inner_product_param {
     num_output: 4096
     weight_filler {
@@ -115,16 +187,16 @@ layer {
   }
 }
 layer {
-  name: "relu10"
+  name: "relu13"
   type: "ReLU"
-  bottom: "fc9"
-  top: "relu10"
+  bottom: "fc12"
+  top: "relu13"
 }
 layer {
-  name: "fc11"
+  name: "fc14"
   type: "InnerProduct"
-  bottom: "relu10"
-  top: "fc11"
+  bottom: "relu13"
+  top: "fc14"
   inner_product_param {
     num_output: 768
     weight_filler {
@@ -136,10 +208,10 @@ layer {
   }
 }
 layer {
-  name: "reshape12"
+  name: "reshape15"
   type: "Reshape"
-  bottom: "fc11"
-  top: "reshape12"
+  bottom: "fc14"
+  top: "reshape15"
   reshape_param {
     channels: 3
     height: 16
@@ -149,6 +221,6 @@ layer {
 layer {
   name: "output"
   type: "SOFTMAX"
-  bottom: "reshape12"
+  bottom: "reshape15"
   top: "output"
 }

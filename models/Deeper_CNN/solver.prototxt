@@ -3,12 +3,10 @@ test_iter: 10
 test_interval: 1000
 
 solver_type: SGD
-base_lr: 0.1
-
+base_lr: 0.0005
 lr_policy: "step"
-gamma: 0.1
+gamma: 1.0
 stepsize: 10000
-
 momentum: 0.9
 weight_decay: 0.0002
 
@@ -16,7 +14,7 @@ display: 100
 max_iter: 2000000
 
 snapshot: 10000
-snapshot_prefix: "snapshots/Mnih_CNN_Asym_Quick"
+snapshot_prefix: "snapshots/Deeper_CNN"
 
 solver_mode: GPU
 device_id: 0

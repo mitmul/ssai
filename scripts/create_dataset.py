@@ -68,7 +68,7 @@ def create_patches(patch_size, sat_data_dir, map_data_dir, sat_out_dir,
     # patch size
     sat_size = int(patch_size * 1.5)
     map_size = int(16 * 1.5)
-    stride = int(map_size)
+    stride = int(16)
     print 'patch size:', sat_size, map_size, stride
 
     # get filenames
