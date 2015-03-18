@@ -1,4 +1,4 @@
-name: "Mnih_CNN_Dropout"
+name: "Mnih_CNN"
 input: "input_data"
 input_dim: 64
 input_dim: 3

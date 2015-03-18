@@ -1,4 +1,4 @@
-name: "Mnih_CNN"
+name: "Mnih_CNN_Weight"
 layer {
   name: "input_data"
   type: "Data"
@@ -261,7 +261,7 @@ layer {
   bottom: "reshape12"
   bottom: "label"
   top: "predict_loss"
-  loss_weight: 1
+  loss_weight: 768
   softmax_cross_entropy_loss_param {
     weights: 1
     weights: 1

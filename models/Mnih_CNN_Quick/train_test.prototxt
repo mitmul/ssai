@@ -1,4 +1,4 @@
-name: "Mnih_CNN"
+name: "Mnih_CNN_Quick"
 layer {
   name: "input_data"
   type: "Data"

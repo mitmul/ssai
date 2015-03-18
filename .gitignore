@@ -3,9 +3,12 @@
 *.tif
 *.tiff
 *.tmp
+*.out
 
 data
 results
+snapshots
+
 scripts/build
 
 .DS_Store

@@ -1,4 +1,4 @@
-name: "Mnih_CNN"
+name: "Mnih_CNN_Asym_Quick"
 layer {
   name: "input_data"
   type: "Data"
@@ -263,9 +263,9 @@ layer {
   top: "predict_loss"
   loss_weight: 1
   softmax_cross_entropy_loss_param {
-    weights: 1
-    weights: 1
-    weights: 1
+    weights: 0
+    weights: 1.5
+    weights: 1.5
   }
 }
 layer {

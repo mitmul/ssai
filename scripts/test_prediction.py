@@ -8,15 +8,17 @@ import numpy as np
 import cv2 as cv
 import caffe
 import argparse
+import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--model', '-m', type=str)
 parser.add_argument('--weight', '-w', type=str)
+parser.add_argument('--img_dir', '-d', type=str)
 args = parser.parse_args()
 print args
 
 caffe.set_mode_gpu()
-caffe.set_device(0)
+caffe.set_device(2)
 
 
 def get_predict(ortho, net, num,
@@ -85,7 +87,12 @@ def get_predict(ortho, net, num,
 if __name__ == '__main__':
     model_fn = args.model
     weight_fn = args.weight
-    result_dir = args.model.replace('/%s' % basename(args.model), '')
+    n_iter = int(weight_fn.split('_')[-1].split('.')[0])
+    result_dir = args.model.replace(basename(args.model), '')
+    result_dir += 'prediction_%d' % n_iter
+    print result_dir
+    if not os.path.exists(result_dir):
+        os.mkdir(result_dir)
 
     net = caffe.Net(model_fn, weight_fn, caffe.TEST)
 
@@ -93,7 +100,7 @@ if __name__ == '__main__':
     l_ch, l_height, l_width = 3, 16, 16
     d_ch, d_height, d_width = 3, 64, 64
 
-    for img_fname in glob.glob('data/mass_merged/test/sat/*.tiff'):
+    for img_fname in glob.glob('%s/*.tif*' % args.img_dir):
         ortho = cv.imread(img_fname)
         st = time.time()
         pred_img, ortho_img = get_predict(ortho, net, num,

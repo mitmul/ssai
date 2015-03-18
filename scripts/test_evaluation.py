@@ -19,6 +19,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--result_dir', '-d', type=str)
+parser.add_argument('--mode', '-m', type=str, default='test')
 args = parser.parse_args()
 print args
 
@@ -29,7 +30,7 @@ pad = 24
 n_thread = 8
 
 result_dir = args.result_dir
-label_dir = 'data/mass_merged/test/map'
+label_dir = 'data/mass_merged/%s/map' % args.mode
 result_fns = glob.glob('%s/*.npy' % result_dir)
 n_results = len(result_fns)
 

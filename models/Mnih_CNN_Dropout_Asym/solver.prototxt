@@ -1,4 +1,4 @@
-net: "../../models/Mnih_CNN_Dropout_Asym/train_test.prototxt"
+net: "train_test.prototxt"
 test_iter: 10
 test_interval: 1000
 

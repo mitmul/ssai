@@ -1,16 +1,9 @@
 #! /bin/bash
-fn=`date +"%Y-%m-%d_%I-%M-%S"`
-if [ ! -d results ]; then
-    mkdir results
-fi
-cd results
-mkdir $1_$fn
-cd $1_$fn
-cp ../../models/$1/*.prototxt ./
+cd $1
 mkdir snapshots
 caffe_dir=$HOME/Libraries/caffe
 $caffe_dir/python/draw_net.py train_test.prototxt net.png
 export GLOG_log_dir=$PWD
-echo 'start learning' $1_$fn
+echo 'start learning' $1
 nohup $caffe_dir/build/tools/caffe train \
-    -solver=../../models/$1/solver.prototxt &
+    -solver=solver.prototxt &

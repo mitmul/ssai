@@ -1,79 +1,14 @@
-name: "Mnih_CNN"
-layer {
-  name: "input_data"
-  type: "Data"
-  top: "input_data"
-  data_param {
-    backend: LMDB
-    source: "../../data/mass_merged/lmdb/train_sat"
-    batch_size: 128
-  }
-  include: { phase: TRAIN }
-}
-layer {
-  name: "input_label"
-  type: "Data"
-  top: "input_label"
-  data_param {
-    backend: LMDB
-    source: "../../data/mass_merged/lmdb/train_map"
-    batch_size: 128
-  }
-  include: { phase: TRAIN }
-}
-layer {
-  name: "input_data"
-  type: "Data"
-  top: "input_data"
-  data_param {
-    backend: LMDB
-    source: "../../data/mass_merged/lmdb/test_sat"
-    batch_size: 64
-  }
-  include: { phase: TEST }
-}
-layer {
-  name: "input_label"
-  type: "Data"
-  top: "input_label"
-  data_param {
-    backend: LMDB
-    source: "../../data/mass_merged/lmdb/test_map"
-    batch_size: 64
-  }
-  include: { phase: TEST }
-}
+name: "Mnih_CNN_Quick"
+input: "input_data"
+input_dim: 64
+input_dim: 3
+input_dim: 64
+input_dim: 64
 layer {
   name: "augment1"
   type: "Augment"
   bottom: "input_data"
-  bottom: "input_label"
   top: "augment1"
-  top: "label"
-  augment_param {
-    # common
-    rotate: true
-    flip: true
-    # data
-    crop_size: 64
-    binarize: false
-    mean_normalize: true
-    divide: 48.519772
-    divide: 46.991936
-    divide: 49.015851
-    # label
-    crop_size: 16
-    binarize: true
-  }
-  include: { phase: TRAIN }
-}
-layer {
-  name: "augment1"
-  type: "Augment"
-  bottom: "input_data"
-  bottom: "input_label"
-  top: "augment1"
-  top: "label"
   augment_param {
     # data
     crop_size: 64
@@ -82,11 +17,7 @@ layer {
     divide: 48.519772
     divide: 46.991936
     divide: 49.015851
-    # label
-    crop_size: 16
-    binarize: true
   }
-  include: { phase: TEST }
 }
 layer {
   name: "conv2"
@@ -256,23 +187,9 @@ layer {
   }
 }
 layer {
-  name: "predict_loss"
-  type: "SoftmaxCrossEntropyLoss"
+  name: "output"
+  type: "Softmax"
   bottom: "reshape12"
-  bottom: "label"
-  top: "predict_loss"
-  loss_weight: 1
-  softmax_cross_entropy_loss_param {
-    weights: 1
-    weights: 1
-    weights: 1
-  }
+  top: "output"
 }
-layer {
-  name: "precision_recall_loss"
-  type: "PrecisionRecallLoss"
-  bottom: "reshape12"
-  bottom: "label"
-  top: "error_rate"
-  include: { phase: TEST }
-}
+

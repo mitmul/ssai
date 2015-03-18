@@ -1,4 +1,4 @@
-net: "../../models/Mnih_CNN/train_test.prototxt"
+net: "train_test.prototxt"
 test_iter: 10
 test_interval: 1000
 
@@ -19,7 +19,7 @@ snapshot: 10000
 snapshot_prefix: "snapshots/Mnih_CNN"
 
 solver_mode: GPU
-device_id: 2
+device_id: 0
 
 random_seed: 1701
 

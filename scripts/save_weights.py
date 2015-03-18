@@ -69,8 +69,9 @@ if __name__ == '__main__':
     for model in glob.glob('%s/snapshots/*.caffemodel' % args.dir):
         num = re.search(ur'_([0-9]+)\.', model).groups()[0]
         if not os.path.exists('%s/weights/weight_%s.png' % (args.dir, num)):
-            print define, model
             net = caffe.Net(define, model, caffe.TEST)
+            print define, model
 
+            print net.params
             conv_W = net.params['conv2'][0].data
             save_tiles(conv_W, '%s/weights/weight_%s' % (args.dir, num))
