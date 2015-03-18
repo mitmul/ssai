@@ -26,7 +26,7 @@ layer {
   top: "conv2"
   convolution_param {
     num_output: 64
-    kernel_size: 9
+    kernel_size: 16
     stride: 1
     weight_filler {
       type: "xavier"
@@ -49,7 +49,7 @@ layer {
   top: "conv4"
   convolution_param {
     num_output: 128
-    kernel_size: 7
+    kernel_size: 14
     stride: 1
     weight_filler {
       type: "xavier"
@@ -72,7 +72,7 @@ layer {
   top: "conv6"
   convolution_param {
     num_output: 128
-    kernel_size: 5
+    kernel_size: 12
     stride: 1
     weight_filler {
       type: "xavier"
@@ -95,7 +95,7 @@ layer {
   top: "conv8"
   convolution_param {
     num_output: 128
-    kernel_size: 3
+    kernel_size: 10
     stride: 1
     weight_filler {
       type: "xavier"
