@@ -8,8 +8,9 @@
 data
 results
 snapshots
-
+config.json
 scripts/build
+scripts/server_util.py
 
 .DS_Store
 sftp-config.json

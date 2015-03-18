@@ -302,6 +302,21 @@ def reshape_layer(number, bottom, channels, height, width):
              width=width)
 
 
+def mvn_layer(number, bottom, across_channels='false'):
+    return '''layer {{
+  name: "mvn{number}"
+  type: "MVN"
+  bottom: "{bottom}"
+  top: "mvn{number}"
+  mvn_param {{
+    normalize_variance: true
+    across_channels: {across_channels}
+  }}
+}}'''.format(number=number,
+             bottom=bottom,
+             across_channels=across_channels)
+
+
 def loss_layer(number, bottom, loss_type, weight=1, weights=None):
     txt = '''layer {{
   name: "predict_loss"
