@@ -229,7 +229,7 @@ layer {
 }
 layer {
   name: "predict_loss"
-  type: "SOFTMAXCrossEntropyLoss"
+  type: "SoftmaxCrossEntropyLoss"
   bottom: "reshape13"
   bottom: "label"
   top: "predict_loss"

@@ -256,7 +256,7 @@ layer {
 }
 layer {
   name: "output"
-  type: "SOFTMAX"
+  type: "Softmax"
   bottom: "reshape17"
   top: "output"
 }

@@ -318,7 +318,7 @@ layer {{
   bottom: "label"
   top: "error_rate"
   include: {{ phase: TEST }}
-}}'''.format(loss_type=loss_type.upper(),
+}}'''.format(loss_type=loss_type[0].upper() + loss_type[1:],
              bottom=bottom,
              weight=weight)
     if weights is not None and len(weights) == 3:
@@ -342,7 +342,7 @@ layer {{
   bottom: "label"
   top: "error_rate"
   include: {{ phase: TEST }}
-}}'''.format(loss_type=loss_type.upper(),
+}}'''.format(loss_type=loss_type[0].upper() + loss_type[1:],
              bottom=bottom,
              weight=weight,
              weights0=weights[0],
@@ -358,7 +358,7 @@ def predict_layer(number, bottom, loss_type):
   type: "{loss_type}"
   bottom: "{bottom}"
   top: "output"
-}}'''.format(loss_type=loss_type.upper(),
+}}'''.format(loss_type=loss_type[0].upper() + loss_type[1:],
              bottom=bottom)
 
 

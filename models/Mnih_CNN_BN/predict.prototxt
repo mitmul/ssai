@@ -220,7 +220,7 @@ layer {
 }
 layer {
   name: "output"
-  type: "SOFTMAX"
+  type: "Softmax"
   bottom: "reshape15"
   top: "output"
 }
