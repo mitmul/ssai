@@ -50,3 +50,10 @@ target_link_libraries(ssai
     ${libs}
 )
 set_target_properties(ssai PROPERTIES PREFIX "")
+
+add_executable(calc_mean_stddev
+    src/calc_mean_stddev.cpp
+)
+target_link_libraries(calc_mean_stddev
+    ${libs}
+)
