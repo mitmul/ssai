@@ -6,4 +6,4 @@ $caffe_dir/python/draw_net.py train_test.prototxt net.png
 export GLOG_log_dir=$PWD
 echo 'start learning' $1
 nohup $caffe_dir/build/tools/caffe train \
-    -solver=solver.prototxt &
+    -solver=$PWD/solver.prototxt &

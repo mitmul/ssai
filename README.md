@@ -13,6 +13,11 @@ Extract building and road from aerial imagery
     $ bash shells/donwload.sh
     $ python scripts/create_dataset.py
 
+it will create
+- train: 3849568 patches
+- valid: 123904 patches
+- test: 309654 patches
+
 # Start training
 
     $ bash shells/train.sh Multi_Plain_Mnih_NN_S_ReLU
