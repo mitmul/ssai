@@ -148,6 +148,14 @@ def conv_layer(number, bottom, num_output, kernel_size, stride):
   type: "Convolution"
   bottom: "{bottom}"
   top: "conv{number}"
+  param {{
+    lr_mult: 1
+    decay_mult: 1
+  }}
+  param {{
+    lr_mult: 2
+    decay_mult: 0
+  }}
   convolution_param {{
     num_output: {num_output}
     kernel_size: {kernel_size}
@@ -247,6 +255,14 @@ def fc_layer(number, bottom, num_output):
   type: "InnerProduct"
   bottom: "{bottom}"
   top: "fc{number}"
+  param {{
+    lr_mult: 1
+    decay_mult: 1
+  }}
+  param {{
+    lr_mult: 2
+    decay_mult: 0
+  }}
   inner_product_param {{
     num_output: {num_output}
     weight_filler {{

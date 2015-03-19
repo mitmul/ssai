@@ -18,4 +18,3 @@ net.step(1)
 data = net.net.blobs['reshape12'].data
 
 img = data[0].transpose([2, 1, 0])
-

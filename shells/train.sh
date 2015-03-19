@@ -1,5 +1,5 @@
 #! /bin/bash
-cd $1
+cd models/$1
 mkdir snapshots
 caffe_dir=$HOME/Libraries/caffe
 $caffe_dir/python/draw_net.py train_test.prototxt net.png
