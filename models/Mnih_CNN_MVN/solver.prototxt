@@ -3,10 +3,10 @@ test_iter: 10
 test_interval: 1000
 
 solver_type: SGD
-base_lr: 0.15
+base_lr: 0.0005
 lr_policy: "step"
-gamma: 0.1
-stepsize: 30000
+gamma: 1.0
+stepsize: 10000
 momentum: 0.9
 weight_decay: 0.0002
 

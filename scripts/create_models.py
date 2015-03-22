@@ -113,7 +113,7 @@ layer {{
              number=number)
 
 
-def predict_augment_layer(number, bottom, stddev0, stddev1, stddev2):
+def predict_augment_layer(number, bottom):
     return '''layer {{
   name: "augment{number}"
   type: "Augment"
@@ -127,10 +127,7 @@ def predict_augment_layer(number, bottom, stddev0, stddev1, stddev2):
     stddev_normalize: true
   }}
 }}'''.format(crop_size=crop_size,
-             number=number,
-             stddev0=stddev0,
-             stddev1=stddev1,
-             stddev2=stddev2)
+             number=number)
 
 
 def conv_layer(number, bottom, num_output, kernel_size, stride):
@@ -445,17 +442,18 @@ if __name__ == '__main__':
             if i > 1:
                 bottom = '%s%d' % (architecture[i - 1][0], i - 1)
             if len(layer) > 1:
-                if layer[0] == 'augment':
-                    txt = globals()['predict_%s_layer' % layer[0]](
-                        i, bottom, *layer[1])
-                elif layer[0] == 'loss':
+                if layer[0] == 'loss':
                     txt = globals()['predict_layer'](i, bottom, layer[1][0])
                 else:
                     txt = globals()['%s_layer' % layer[0]](
                         i, bottom, *layer[1])
                 print >> fp, txt
             else:
-                print >> fp, globals()['%s_layer' % layer[0]](i, bottom)
+                if layer[0] == 'augment':
+                    print >> fp, globals()['predict_%s_layer' % layer[0]](
+                        i, bottom)
+                else:
+                    print >> fp, globals()['%s_layer' % layer[0]](i, bottom)
         fp.close()
 
         subprocess.check_output(

@@ -14,9 +14,7 @@ layer {
     crop_size: 64
     binarize: false
     mean_normalize: true
-    divide: 48.524406
-    divide: 46.994726
-    divide: 49.018684
+    stddev_normalize: true
   }
 }
 layer {
@@ -24,14 +22,6 @@ layer {
   type: "Convolution"
   bottom: "augment1"
   top: "conv2"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
   convolution_param {
     num_output: 64
     kernel_size: 16
@@ -79,14 +69,6 @@ layer {
   type: "Convolution"
   bottom: "relu4"
   top: "conv5"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
   convolution_param {
     num_output: 128
     kernel_size: 14
@@ -134,14 +116,6 @@ layer {
   type: "Convolution"
   bottom: "relu7"
   top: "conv8"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
   convolution_param {
     num_output: 128
     kernel_size: 12
@@ -189,14 +163,6 @@ layer {
   type: "Convolution"
   bottom: "relu10"
   top: "conv11"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
   convolution_param {
     num_output: 128
     kernel_size: 10
@@ -244,14 +210,6 @@ layer {
   type: "InnerProduct"
   bottom: "relu13"
   top: "fc14"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
   inner_product_param {
     num_output: 4096
     weight_filler {
@@ -273,14 +231,6 @@ layer {
   type: "InnerProduct"
   bottom: "relu15"
   top: "fc16"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
   inner_product_param {
     num_output: 768
     weight_filler {
