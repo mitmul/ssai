@@ -68,7 +68,7 @@ layer {{
              batch_size=batch_size)
 
 
-def augment_layer(number, bottom, stddev0, stddev1, stddev2):
+def augment_layer(number, bottom):
     return '''layer {{
   name: "augment{number}"
   type: "Augment"
@@ -84,9 +84,7 @@ def augment_layer(number, bottom, stddev0, stddev1, stddev2):
     crop_size: {crop_size}
     binarize: false
     mean_normalize: true
-    divide: {stddev0}
-    divide: {stddev1}
-    divide: {stddev2}
+    stddev_normalize: true
     # label
     crop_size: 16
     binarize: true
@@ -105,19 +103,14 @@ layer {{
     crop_size: {crop_size}
     binarize: false
     mean_normalize: true
-    divide: {stddev0}
-    divide: {stddev1}
-    divide: {stddev2}
+    stddev_normalize: true
     # label
     crop_size: 16
     binarize: true
   }}
   include: {{ phase: TEST }}
 }}'''.format(crop_size=crop_size,
-             number=number,
-             stddev0=stddev0,
-             stddev1=stddev1,
-             stddev2=stddev2)
+             number=number)
 
 
 def predict_augment_layer(number, bottom, stddev0, stddev1, stddev2):
@@ -131,9 +124,7 @@ def predict_augment_layer(number, bottom, stddev0, stddev1, stddev2):
     crop_size: {crop_size}
     binarize: false
     mean_normalize: true
-    divide: {stddev0}
-    divide: {stddev1}
-    divide: {stddev2}
+    stddev_normalize: true
   }}
 }}'''.format(crop_size=crop_size,
              number=number,
@@ -148,14 +139,6 @@ def conv_layer(number, bottom, num_output, kernel_size, stride):
   type: "Convolution"
   bottom: "{bottom}"
   top: "conv{number}"
-  param {{
-    lr_mult: 1
-    decay_mult: 1
-  }}
-  param {{
-    lr_mult: 2
-    decay_mult: 0
-  }}
   convolution_param {{
     num_output: {num_output}
     kernel_size: {kernel_size}
@@ -255,14 +238,6 @@ def fc_layer(number, bottom, num_output):
   type: "InnerProduct"
   bottom: "{bottom}"
   top: "fc{number}"
-  param {{
-    lr_mult: 1
-    decay_mult: 1
-  }}
-  param {{
-    lr_mult: 2
-    decay_mult: 0
-  }}
   inner_product_param {{
     num_output: {num_output}
     weight_filler {{
