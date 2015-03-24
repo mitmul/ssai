@@ -5,26 +5,23 @@ input_dim: 3
 input_dim: 64
 input_dim: 64
 layer {
-  name: "augment1"
-  type: "Augment"
-  bottom: "input_data"
-  top: "augment1"
-  augment_param {
-    # data
-    crop_size: 64
-    binarize: false
-    mean_normalize: true
-    stddev_normalize: true
+  name: "mvn1"
+  type: "MVN"
+  bottom: "None"
+  top: "mvn1"
+  mvn_param {
+    normalize_variance: true
+    across_channels: false
   }
 }
 layer {
   name: "conv2"
   type: "Convolution"
-  bottom: "augment1"
+  bottom: "mvn1"
   top: "conv2"
   convolution_param {
     num_output: 64
-    kernel_size: 16
+    kernel_size: 3
     stride: 1
     weight_filler {
       type: "xavier"
@@ -70,8 +67,8 @@ layer {
   bottom: "relu4"
   top: "conv5"
   convolution_param {
-    num_output: 128
-    kernel_size: 14
+    num_output: 64
+    kernel_size: 3
     stride: 1
     weight_filler {
       type: "xavier"
@@ -118,7 +115,7 @@ layer {
   top: "conv8"
   convolution_param {
     num_output: 128
-    kernel_size: 12
+    kernel_size: 3
     stride: 1
     weight_filler {
       type: "xavier"
@@ -165,7 +162,7 @@ layer {
   top: "conv11"
   convolution_param {
     num_output: 128
-    kernel_size: 10
+    kernel_size: 3
     stride: 1
     weight_filler {
       type: "xavier"
@@ -206,10 +203,104 @@ layer {
   top: "relu13"
 }
 layer {
-  name: "fc14"
-  type: "InnerProduct"
+  name: "conv14"
+  type: "Convolution"
   bottom: "relu13"
-  top: "fc14"
+  top: "conv14"
+  convolution_param {
+    num_output: 128
+    kernel_size: 3
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "bn15"
+  type: "BN"
+  bottom: "conv14"
+  top: "bn15"
+  param {
+    lr_mult: 1.00001
+    decay_mult: 0
+  }
+  param {
+    lr_mult: 1.00001
+    decay_mult: 0
+  }
+  bn_param {
+    scale_filler {
+      type: "constant"
+      value: 1
+    }
+    shift_filler {
+      type: "constant"
+      value: 0.001
+    }
+  }
+}
+layer {
+  name: "relu16"
+  type: "ReLU"
+  bottom: "bn15"
+  top: "relu16"
+}
+layer {
+  name: "conv17"
+  type: "Convolution"
+  bottom: "relu16"
+  top: "conv17"
+  convolution_param {
+    num_output: 128
+    kernel_size: 3
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "bn18"
+  type: "BN"
+  bottom: "conv17"
+  top: "bn18"
+  param {
+    lr_mult: 1.00001
+    decay_mult: 0
+  }
+  param {
+    lr_mult: 1.00001
+    decay_mult: 0
+  }
+  bn_param {
+    scale_filler {
+      type: "constant"
+      value: 1
+    }
+    shift_filler {
+      type: "constant"
+      value: 0.001
+    }
+  }
+}
+layer {
+  name: "relu19"
+  type: "ReLU"
+  bottom: "bn18"
+  top: "relu19"
+}
+layer {
+  name: "fc20"
+  type: "InnerProduct"
+  bottom: "relu19"
+  top: "fc20"
   inner_product_param {
     num_output: 4096
     weight_filler {
@@ -221,16 +312,16 @@ layer {
   }
 }
 layer {
-  name: "relu15"
+  name: "relu21"
   type: "ReLU"
-  bottom: "fc14"
-  top: "relu15"
+  bottom: "fc20"
+  top: "relu21"
 }
 layer {
-  name: "fc16"
+  name: "fc22"
   type: "InnerProduct"
-  bottom: "relu15"
-  top: "fc16"
+  bottom: "relu21"
+  top: "fc22"
   inner_product_param {
     num_output: 768
     weight_filler {
@@ -242,10 +333,10 @@ layer {
   }
 }
 layer {
-  name: "reshape17"
+  name: "reshape23"
   type: "Reshape"
-  bottom: "fc16"
-  top: "reshape17"
+  bottom: "fc22"
+  top: "reshape23"
   reshape_param {
     channels: 3
     height: 16
@@ -255,6 +346,6 @@ layer {
 layer {
   name: "output"
   type: "Softmax"
-  bottom: "reshape17"
+  bottom: "reshape23"
   top: "output"
 }

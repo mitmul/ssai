@@ -1,93 +1,58 @@
 name: "Mnih_CNN_BN_Asym"
 layer {
-  name: "input_data"
-  type: "Data"
-  top: "input_data"
-  data_param {
-    backend: LMDB
-    source: "../../data/mass_merged/lmdb/train_sat"
-    batch_size: 128
-  }
-  include: { phase: TRAIN }
-}
-layer {
-  name: "input_label"
-  type: "Data"
-  top: "input_label"
-  data_param {
-    backend: LMDB
-    source: "../../data/mass_merged/lmdb/train_map"
-    batch_size: 128
-  }
-  include: { phase: TRAIN }
-}
-layer {
-  name: "input_data"
-  type: "Data"
-  top: "input_data"
-  data_param {
-    backend: LMDB
-    source: "../../data/mass_merged/lmdb/test_sat"
-    batch_size: 128
-  }
-  include: { phase: TEST }
-}
-layer {
-  name: "input_label"
-  type: "Data"
-  top: "input_label"
-  data_param {
-    backend: LMDB
-    source: "../../data/mass_merged/lmdb/test_map"
-    batch_size: 128
-  }
-  include: { phase: TEST }
-}
-layer {
-  name: "augment1"
-  type: "Augment"
-  bottom: "input_data"
-  bottom: "input_label"
-  top: "augment1"
+  name: "data"
+  type: "PatchBasedSegmentationData"
+  top: "data"
   top: "label"
-  augment_param {
-    # common
-    rotate: true
+  patch_based_segmentation_data_param {
+    source: "../../data/mass_merged/lmdb/train.lmdb"
+    batch_size: 128
+    rand_skip: 128
+    data_channels: 3
+    data_height: 64
+    data_width: 64
+    label_channels: 3
+    label_height: 16
+    label_width: 16
+    rotation: true
     flip: true
-    # data
-    crop_size: 64
-    binarize: false
-    mean_normalize: true
-    stddev_normalize: true
-    # label
-    crop_size: 16
-    binarize: true
   }
   include: { phase: TRAIN }
 }
 layer {
-  name: "augment1"
-  type: "Augment"
-  bottom: "input_data"
-  bottom: "input_label"
-  top: "augment1"
+  name: "data"
+  type: "PatchBasedSegmentationData"
+  top: "data"
   top: "label"
-  augment_param {
-    # data
-    crop_size: 64
-    binarize: false
-    mean_normalize: true
-    stddev_normalize: true
-    # label
-    crop_size: 16
-    binarize: true
+  patch_based_segmentation_data_param {
+    source: "../../data/mass_merged/lmdb/test.lmdb"
+    batch_size: 128
+    rand_skip: 128
+    data_channels: 3
+    data_height: 64
+    data_width: 64
+    label_channels: 3
+    label_height: 16
+    label_width: 16
+    rotation: true
+    flip: true
   }
   include: { phase: TEST }
+}
+layer {
+  name: "mvn1"
+  type: "MVN"
+  bottom: "data"
+  top: "mvn1"
+  mvn_param {
+    normalize_variance: true
+    across_channels: false
+  }
 }
 layer {
   name: "conv2"
   type: "Convolution"
-  bottom: "augment1"
+  bottom: "mvn1"
   top: "conv2"
   convolution_param {
     num_output: 64

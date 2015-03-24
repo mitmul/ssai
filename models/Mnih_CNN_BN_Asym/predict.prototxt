@@ -5,22 +5,19 @@ input_dim: 3
 input_dim: 64
 input_dim: 64
 layer {
-  name: "augment1"
-  type: "Augment"
-  bottom: "input_data"
-  top: "augment1"
-  augment_param {
-    # data
-    crop_size: 64
-    binarize: false
-    mean_normalize: true
-    stddev_normalize: true
+  name: "mvn1"
+  type: "MVN"
+  bottom: "None"
+  top: "mvn1"
+  mvn_param {
+    normalize_variance: true
+    across_channels: false
   }
 }
 layer {
   name: "conv2"
   type: "Convolution"
-  bottom: "augment1"
+  bottom: "mvn1"
   top: "conv2"
   convolution_param {
     num_output: 64

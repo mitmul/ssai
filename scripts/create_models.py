@@ -21,113 +21,47 @@ batch_size = args.batch_size
 
 def data_layer(number, bottom, object_type):
     return '''layer {{
-  name: "input_data"
-  type: "Data"
-  top: "input_data"
-  data_param {{
-    backend: LMDB
-    source: "../../data/mass_{object_type}/{dataset}/train_sat"
+  name: "data"
+  type: "PatchBasedSegmentationData"
+  top: "data"
+  top: "label"
+  patch_based_segmentation_data_param {{
+    source: "../../data/mass_{object_type}/{dataset}/train.lmdb"
     batch_size: {batch_size}
+    rand_skip: {batch_size}
+    data_channels: 3
+    data_height: 64
+    data_width: 64
+    label_channels: 3
+    label_height: 16
+    label_width: 16
+    rotation: true
+    flip: true
   }}
   include: {{ phase: TRAIN }}
 }}
 layer {{
-  name: "input_label"
-  type: "Data"
-  top: "input_label"
-  data_param {{
-    backend: LMDB
-    source: "../../data/mass_{object_type}/{dataset}/train_map"
+  name: "data"
+  type: "PatchBasedSegmentationData"
+  top: "data"
+  top: "label"
+  patch_based_segmentation_data_param {{
+    source: "../../data/mass_{object_type}/{dataset}/test.lmdb"
     batch_size: {batch_size}
-  }}
-  include: {{ phase: TRAIN }}
-}}
-layer {{
-  name: "input_data"
-  type: "Data"
-  top: "input_data"
-  data_param {{
-    backend: LMDB
-    source: "../../data/mass_{object_type}/{dataset}/test_sat"
-    batch_size: {batch_size}
-  }}
-  include: {{ phase: TEST }}
-}}
-layer {{
-  name: "input_label"
-  type: "Data"
-  top: "input_label"
-  data_param {{
-    backend: LMDB
-    source: "../../data/mass_{object_type}/{dataset}/test_map"
-    batch_size: {batch_size}
+    rand_skip: {batch_size}
+    data_channels: 3
+    data_height: 64
+    data_width: 64
+    label_channels: 3
+    label_height: 16
+    label_width: 16
+    rotation: true
+    flip: true
   }}
   include: {{ phase: TEST }}
 }}'''.format(object_type=object_type,
              dataset=dataset,
              batch_size=batch_size)
-
-
-def augment_layer(number, bottom):
-    return '''layer {{
-  name: "augment{number}"
-  type: "Augment"
-  bottom: "input_data"
-  bottom: "input_label"
-  top: "augment{number}"
-  top: "label"
-  augment_param {{
-    # common
-    rotate: true
-    flip: true
-    # data
-    crop_size: {crop_size}
-    binarize: false
-    mean_normalize: true
-    stddev_normalize: true
-    # label
-    crop_size: 16
-    binarize: true
-  }}
-  include: {{ phase: TRAIN }}
-}}
-layer {{
-  name: "augment{number}"
-  type: "Augment"
-  bottom: "input_data"
-  bottom: "input_label"
-  top: "augment{number}"
-  top: "label"
-  augment_param {{
-    # data
-    crop_size: {crop_size}
-    binarize: false
-    mean_normalize: true
-    stddev_normalize: true
-    # label
-    crop_size: 16
-    binarize: true
-  }}
-  include: {{ phase: TEST }}
-}}'''.format(crop_size=crop_size,
-             number=number)
-
-
-def predict_augment_layer(number, bottom):
-    return '''layer {{
-  name: "augment{number}"
-  type: "Augment"
-  bottom: "input_data"
-  top: "augment{number}"
-  augment_param {{
-    # data
-    crop_size: {crop_size}
-    binarize: false
-    mean_normalize: true
-    stddev_normalize: true
-  }}
-}}'''.format(crop_size=crop_size,
-             number=number)
 
 
 def conv_layer(number, bottom, num_output, kernel_size, stride):
@@ -409,7 +343,7 @@ if __name__ == '__main__':
         for i, layer in enumerate(architecture):
             if layer[0] == 'solver':
                 continue
-            bottom = None
+            bottom = 'data'
             if i > 1:
                 bottom = '%s%d' % (architecture[i - 1][0], i - 1)
             if len(layer) > 1:
