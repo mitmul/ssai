@@ -29,14 +29,22 @@ def data_layer(number, bottom, object_type):
     source: "../../data/mass_{object_type}/{dataset}/train.lmdb"
     batch_size: {batch_size}
     rand_skip: {batch_size}
+
+    # data patch detail
     data_channels: 3
     data_height: 64
     data_width: 64
+
+    # label patch detail
     label_channels: 3
     label_height: 16
     label_width: 16
+
+    # augmentation
     rotation: true
     flip: true
+    has_value: true
+    skip_blank: true
   }}
   include: {{ phase: TRAIN }}
 }}
@@ -49,14 +57,22 @@ layer {{
     source: "../../data/mass_{object_type}/{dataset}/test.lmdb"
     batch_size: {batch_size}
     rand_skip: {batch_size}
+
+    # data patch detail
     data_channels: 3
     data_height: 64
     data_width: 64
+
+    # label patch detail
     label_channels: 3
     label_height: 16
     label_width: 16
+
+    # augmentation
     rotation: true
     flip: true
+    has_value: true
+    skip_blank: true
   }}
   include: {{ phase: TEST }}
 }}'''.format(object_type=object_type,
