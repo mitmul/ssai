@@ -43,7 +43,7 @@ def data_layer(number, bottom, object_type):
     # augmentation
     rotation: true
     flip: true
-    has_value: true
+    has_value: false
     skip_blank: true
   }}
   include: {{ phase: TRAIN }}
@@ -345,16 +345,16 @@ random_seed: 1701
            max_iter=max_iter)
 
 if __name__ == '__main__':
-    if not os.path.exists('models'):
-        os.mkdir('models')
+    if not os.path.exists('models_/'):
+        os.mkdir('models_/')
 
     models = json.load(open(args.seed))
     for model_name, architecture in models.iteritems():
-        if not os.path.exists('models/%s' % model_name):
-            os.mkdir('models/%s' % model_name)
+        if not os.path.exists('models_/%s' % model_name):
+            os.mkdir('models_/%s' % model_name)
 
         # save prototxt for train & test
-        fp = open('models/%s/train_test.prototxt' % model_name, 'w')
+        fp = open('models_/%s/train_test.prototxt' % model_name, 'w')
         print >> fp, 'name: "%s"' % model_name
         for i, layer in enumerate(architecture):
             if layer[0] == 'solver':
@@ -370,14 +370,14 @@ if __name__ == '__main__':
         fp.close()
 
         # save prototxt for solver
-        fp = open('models/%s/solver.prototxt' % model_name, 'w')
+        fp = open('models_/%s/solver.prototxt' % model_name, 'w')
         print >> fp, solver(model_name, *architecture[-1][1])
         fp.close()
 
         # save prototxt for predict
-        fp = open('models/%s/predict.prototxt' % model_name, 'w')
+        fp = open('models_/%s/predict.prototxt' % model_name, 'w')
         print >> fp, 'name: "%s"' % model_name
-        print >> fp, 'input: "input_data"'
+        print >> fp, 'input: "data"'
         print >> fp, 'input_dim: 64'
         print >> fp, 'input_dim: 3'
         print >> fp, 'input_dim: %d' % crop_size
@@ -388,7 +388,7 @@ if __name__ == '__main__':
             elif layer[0] == 'solver':
                 continue
 
-            bottom = None
+            bottom = 'data'
             if i > 1:
                 bottom = '%s%d' % (architecture[i - 1][0], i - 1)
             if len(layer) > 1:
@@ -408,5 +408,5 @@ if __name__ == '__main__':
 
         subprocess.check_output(
             ['python', '/home/ubuntu/Libraries/caffe/python/draw_net.py',
-             'models/%s/train_test.prototxt' % model_name,
-             'models/%s/net.png' % model_name])
+             'models_/%s/train_test.prototxt' % model_name,
+             'models_/%s/net.png' % model_name])
