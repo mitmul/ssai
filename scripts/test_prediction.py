@@ -57,7 +57,7 @@ def get_predict(ortho, net, num,
             orthos = o_patches[n_patches - num:]
         else:
             orthos = o_patches[i * num:(i + 1) * num]
-        net.blobs['input_data'].data[:, :, :, :] = orthos
+        net.blobs['data'].data[:, :, :, :] = orthos
         predicts = net.forward().values()[0]
 
         for j, predict in enumerate(predicts):

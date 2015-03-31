@@ -5,7 +5,6 @@ import shutil
 import os
 import glob
 import lmdb
-import caffe
 import numpy as np
 import cv2 as cv
 import json
@@ -51,6 +50,17 @@ def create_merged_map():
                        merged_map * 255)
 
 
+def create_single_maps(map_data_dir):
+    for map_fn in glob.glob('%s/*.tif*' % map_data_dir):
+        map = cv.imread(map_fn, cv.IMREAD_GRAYSCALE)
+        _, ext = os.path.splitext(map_fn)
+        png_fn = map_fn.replace(ext, '.png')
+        if not os.path.exists(png_fn):
+            cv.imwrite(png_fn, map)
+            _, map = cv.threshold(map, 125, 1, cv.THRESH_BINARY)
+            cv.imwrite(map_fn, map)
+
+
 def create_dataset(sat_data_dir, map_data_dir, out_dir):
     if os.path.exists(out_dir):
         shutil.rmtree(out_dir)
@@ -90,12 +100,32 @@ def create_dataset(sat_data_dir, map_data_dir, out_dir):
 
 if __name__ == '__main__':
     # create_merged_map()
-    create_dataset('data/mass_merged/valid/sat',
-                   'data/mass_merged/valid/map',
-                   'data/mass_merged/lmdb/valid.lmdb')
-    create_dataset('data/mass_merged/test/sat',
-                   'data/mass_merged/test/map',
-                   'data/mass_merged/lmdb/test.lmdb')
-    create_dataset('data/mass_merged/train/sat',
-                   'data/mass_merged/train/map',
-                   'data/mass_merged/lmdb/train.lmdb')
+    create_single_maps('data/mass_roads/valid/map')
+
+    # create_dataset('data/mass_merged/valid/sat',
+    #                'data/mass_merged/valid/map',
+    #                'data/mass_merged/lmdb/valid.lmdb')
+    # create_dataset('data/mass_merged/test/sat',
+    #                'data/mass_merged/test/map',
+    #                'data/mass_merged/lmdb/test.lmdb')
+    # create_dataset('data/mass_merged/train/sat',
+    #                'data/mass_merged/train/map',
+    #                'data/mass_merged/lmdb/train.lmdb')
+    # create_dataset('data/mass_roads/valid/sat',
+    #                'data/mass_roads/valid/map',
+    #                'data/mass_roads/lmdb/valid.lmdb')
+    # create_dataset('data/mass_roads/test/sat',
+    #                'data/mass_roads/test/map',
+    #                'data/mass_roads/lmdb/test.lmdb')
+    # create_dataset('data/mass_roads/train/sat',
+    #                'data/mass_roads/train/map',
+    #                'data/mass_roads/lmdb/train.lmdb')
+    # create_dataset('data/mass_buildings/valid/sat',
+    #                'data/mass_buildings/valid/map',
+    #                'data/mass_buildings/lmdb/valid.lmdb')
+    # create_dataset('data/mass_buildings/test/sat',
+    #                'data/mass_buildings/test/map',
+    #                'data/mass_buildings/lmdb/test.lmdb')
+    # create_dataset('data/mass_buildings/train/sat',
+    #                'data/mass_buildings/train/map',
+    #                'data/mass_buildings/lmdb/train.lmdb')

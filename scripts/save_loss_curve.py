@@ -9,6 +9,12 @@ if sys.platform.startswith('linux'):
     import matplotlib
     matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--start', '-s', type=int, default=0)
+args = parser.parse_args()
+print args
 
 
 def save_loss_curve(dname, fname='caffe.INFO'):
@@ -17,6 +23,7 @@ def save_loss_curve(dname, fname='caffe.INFO'):
     t_iter = []
     error = []
     test = []
+
     if os.path.exists('%s/nohup.out' % dname):
         fname = 'nohup.out'
     for line in open('%s/%s' % (dname, fname)):
@@ -41,6 +48,12 @@ def save_loss_curve(dname, fname='caffe.INFO'):
             if tmp:
                 test.append(float(tmp.groups()[0]))
 
+    l_iter = l_iter[args.start:]
+    loss = loss[args.start:]
+    t_iter = t_iter[args.start:]
+    error = error[args.start:]
+    test = test[args.start:]
+
     plt.clf()
     min_l = 0.0 if len(test) == 0 else np.min(test)
     pos_l = 0 if len(test) == 0 else l_iter[np.argmin(test)]
@@ -52,8 +65,8 @@ def save_loss_curve(dname, fname='caffe.INFO'):
               (os.path.basename(dname), min_l, pos_l, min_e, pos_e))
     plt.xlabel('iteration')
     plt.ylabel('loss')
-    plt.plot(t_iter[:len(test)], test, label='test loss')
     plt.plot(l_iter[:len(loss)], loss, label='traning loss')
+    plt.plot(t_iter[:len(test)], test, label='test loss')
     plt.legend(loc='upper right')
     plt.grid(linestyle='--')
 

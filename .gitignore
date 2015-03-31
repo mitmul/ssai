@@ -4,13 +4,18 @@
 *.tiff
 *.tmp
 *.out
+*.tar
+*.gz
 
 data
+lib/build
 results
 snapshots
 config.json
 scripts/build
 scripts/server_util.py
+models
+models_
 
 .DS_Store
 sftp-config.json

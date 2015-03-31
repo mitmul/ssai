@@ -4,8 +4,8 @@
 import sys
 import matplotlib
 matplotlib.use('Agg')
-sys.path.append('scripts/build')
-sys.path.append('../../scripts/build')
+sys.path.append('lib/build')
+sys.path.append('../../lib/build')
 import matplotlib.pyplot as plt
 from ssai import relax_precision, relax_recall
 import cv2 as cv
