@@ -15,10 +15,20 @@ set(inc_dirs
     /opt/intel/mkl/include
     $ENV{HOME}/Libraries/caffe/build/src
     $ENV{HOME}/Libraries/caffe/include
+    $ENV{HOME}/Libraries/boost_1_57_0/install/include
+    $ENV{HOME}/Libraries/opencv-2.4.10/install/include
+    $ENV{HOME}/Libraries/opencv-2.4.10/install/include/opencv
+    $ENV{HOME}/Libraries/opencv-2.4.10/install/include/opencv2
+    $ENV{HOME}/Libraries/Boost.NumPy/install/include
     $ENV{HOME}/anaconda/include/python2.7
+    $ENV{HOME}/anaconda/include
 )
 set(lib_dirs
     $ENV{HOME}/Libraries/caffe/build/lib
+    $ENV{HOME}/anaconda/lib
+    $ENV{HOME}/Libraries/opencv-2.4.10/install/lib
+    $ENV{HOME}/Libraries/Boost.NumPy/install/lib
+    $ENV{HOME}/Libraries/boost_1_57_0/install/lib
 )
 set(libs
     caffe
