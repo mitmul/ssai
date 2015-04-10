@@ -305,6 +305,26 @@ layer {{
     return txt
 
 
+def euclidean_loss_layer(number, bottom):
+    return '''layer {{
+  name: "euclidean_loss"
+  type: "EuclideanLoss"
+  bottom: "{bottom}"
+  bottom: "label"
+  top: "predict_loss"
+}}
+
+layer {{
+  name: "precision_recall_loss"
+  type: "PrecisionRecallLoss"
+  bottom: "{bottom}"
+  bottom: "label"
+  top: "error_rate"
+  include: {{ phase: TEST }}
+}}'''.format(number=number,
+             bottom=bottom)
+
+
 def predict_layer(number, bottom, loss_type):
     return '''layer {{
   name: "output"
