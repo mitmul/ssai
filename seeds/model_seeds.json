@@ -58,25 +58,5 @@
     ["reshape", [3, 16, 16]],
     ["euclidean_loss"],
     ["solver", [0.0005, 1.0, 10000, 1000000]]
-  ],
-  "Mnih_CNN_Asym_Euclid": [
-    ["data", ["merged"]],
-    ["conv", [64, 16, 4]],
-    ["relu"],
-    ["mvn"],
-    ["pool", [2, 1]],
-    ["mvn"],
-    ["conv", [112, 4, 1]],
-    ["relu"],
-    ["mvn"],
-    ["conv", [80, 3, 1]],
-    ["relu"],
-    ["mvn"],
-    ["fc", [4096]],
-    ["relu"],
-    ["fc", [768]],
-    ["reshape", [3, 16, 16]],
-    ["euclidean_loss"],
-    ["solver", [0.0005, 1.0, 10000, 1000000]]
   ]
 }
