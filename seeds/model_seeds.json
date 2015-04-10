@@ -1,6 +1,7 @@
 {
   "Mnih_CNN": [
     ["data", ["merged"]],
+    ["mvn"],
     ["conv", [64, 16, 4]],
     ["relu"],
     ["mvn"],
@@ -21,6 +22,7 @@
   ],
   "Mnih_CNN_Asym": [
     ["data", ["merged"]],
+    ["mvn"],
     ["conv", [64, 16, 4]],
     ["relu"],
     ["mvn"],
@@ -41,6 +43,7 @@
   ],
   "Mnih_CNN_Euclid": [
     ["data", ["merged"]],
+    ["mvn"],
     ["conv", [64, 16, 4]],
     ["relu"],
     ["mvn"],
@@ -58,5 +61,5 @@
     ["reshape", [3, 16, 16]],
     ["euclidean_loss"],
     ["solver", [0.0005, 1.0, 10000, 1000000]]
-  ]
+  ] 
 }
