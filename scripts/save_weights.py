@@ -73,5 +73,5 @@ if __name__ == '__main__':
             print define, model
 
             print net.params
-            conv_W = net.params['conv2'][0].data
+            conv_W = net.params['conv1'][0].data
             save_tiles(conv_W, '%s/weights/weight_%s' % (args.dir, num))
