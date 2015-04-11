@@ -318,13 +318,14 @@ layer {{
     return txt
 
 
-def euclidean_loss_layer(number, bottom):
+def euclidean_loss_layer(number, bottom, weight):
     return '''layer {{
   name: "euclidean_loss"
   type: "EuclideanLoss"
   bottom: "{bottom}"
   bottom: "label"
   top: "predict_loss"
+  loss_weight: {weight}
 }}
 
 layer {{
@@ -335,7 +336,8 @@ layer {{
   top: "error_rate"
   include: {{ phase: TEST }}
 }}'''.format(number=number,
-             bottom=bottom)
+             bottom=bottom,
+             weight=weight)
 
 
 def predict_layer(number, bottom, loss_type):
