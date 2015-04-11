@@ -255,7 +255,18 @@ def mvn_layer(number, bottom, across_channels='false'):
              across_channels=across_channels)
 
 
-def loss_layer(number, bottom, loss_type, weight=1, weights=None):
+def softmax_layer(number, bottom):
+    return '''layer {{
+  name: "softmax{number}"
+  type: "Softmax"
+  bottom: "{bottom}"
+  top: "softmax{number}"
+}}'''.format(number=number,
+             bottom=bottom)
+
+
+def loss_layer(
+        number, bottom, loss_type, weight=1, weights=None, zero_channel=-1):
     txt = '''layer {{
   name: "predict_loss"
   type: "{loss_type}CrossEntropyLoss"
@@ -286,6 +297,7 @@ layer {{
     weights: {weights0}
     weights: {weights1}
     weights: {weights2}
+    zero_channel: {zero_channel}
   }}
 }}
 layer {{
@@ -300,7 +312,8 @@ layer {{
              weight=weight,
              weights0=weights[0],
              weights1=weights[1],
-             weights2=weights[2])
+             weights2=weights[2],
+             zero_channel=zero_channel)
 
     return txt
 
