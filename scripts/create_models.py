@@ -430,7 +430,7 @@ if __name__ == '__main__':
                 if layer[0] == 'loss':
                     txt = globals()['predict_layer'](i, bottom, layer[1][0])
                 elif layer[0] == 'euclidean_loss':
-                    txt = globals()['predict_layer'](i, bottom, layer[1][0])
+                    txt = globals()['predict_layer'](i, bottom, 'euclidean')
                 else:
                     txt = globals()['%s_layer' % layer[0]](
                         i, bottom, *layer[1])
