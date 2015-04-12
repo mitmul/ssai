@@ -86,6 +86,14 @@ def conv_layer(number, bottom, num_output, kernel_size, stride):
   type: "Convolution"
   bottom: "{bottom}"
   top: "conv{number}"
+  param {{
+    lr_mult: 1
+    decay_mult: 1
+  }}
+  param {{
+    lr_mult: 2
+    decay_mult: 0
+  }}
   convolution_param {{
     num_output: {num_output}
     kernel_size: {kernel_size}
@@ -185,6 +193,14 @@ def fc_layer(number, bottom, num_output):
   type: "InnerProduct"
   bottom: "{bottom}"
   top: "fc{number}"
+  param {{
+    lr_mult: 1
+    decay_mult: 1
+  }}
+  param {{
+    lr_mult: 2
+    decay_mult: 0
+  }}
   inner_product_param {{
     num_output: {num_output}
     weight_filler {{
@@ -255,7 +271,18 @@ def mvn_layer(number, bottom, across_channels='false'):
              across_channels=across_channels)
 
 
-def loss_layer(number, bottom, loss_type, weight=1, weights=None):
+def softmax_layer(number, bottom):
+    return '''layer {{
+  name: "softmax{number}"
+  type: "Softmax"
+  bottom: "{bottom}"
+  top: "softmax{number}"
+}}'''.format(number=number,
+             bottom=bottom)
+
+
+def loss_layer(
+        number, bottom, loss_type, weight=1, weights=None, zero_channel=-1):
     txt = '''layer {{
   name: "predict_loss"
   type: "{loss_type}CrossEntropyLoss"
@@ -286,6 +313,7 @@ layer {{
     weights: {weights0}
     weights: {weights1}
     weights: {weights2}
+    zero_channel: {zero_channel}
   }}
 }}
 layer {{
@@ -300,18 +328,20 @@ layer {{
              weight=weight,
              weights0=weights[0],
              weights1=weights[1],
-             weights2=weights[2])
+             weights2=weights[2],
+             zero_channel=zero_channel)
 
     return txt
 
 
-def euclidean_loss_layer(number, bottom):
+def euclidean_loss_layer(number, bottom, weight):
     return '''layer {{
   name: "euclidean_loss"
   type: "EuclideanLoss"
   bottom: "{bottom}"
   bottom: "label"
   top: "predict_loss"
+  loss_weight: {weight}
 }}
 
 layer {{
@@ -322,7 +352,8 @@ layer {{
   top: "error_rate"
   include: {{ phase: TEST }}
 }}'''.format(number=number,
-             bottom=bottom)
+             bottom=bottom,
+             weight=weight)
 
 
 def predict_layer(number, bottom, loss_type):
@@ -346,7 +377,7 @@ lr_policy: "step"
 gamma: {gamma}
 stepsize: {stepsize}
 momentum: 0.9
-weight_decay: 0.0002
+weight_decay: 0.0005
 
 display: 100
 max_iter: {max_iter}
@@ -414,6 +445,8 @@ if __name__ == '__main__':
             if len(layer) > 1:
                 if layer[0] == 'loss':
                     txt = globals()['predict_layer'](i, bottom, layer[1][0])
+                elif layer[0] == 'euclidean_loss':
+                    txt = globals()['predict_layer'](i, bottom, 'euclidean')
                 else:
                     txt = globals()['%s_layer' % layer[0]](
                         i, bottom, *layer[1])
