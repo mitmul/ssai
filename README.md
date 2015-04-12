@@ -5,6 +5,8 @@ Extract building and road from aerial imagery
 
 # Requirements
 - OpenCV 2.4.10
+- Boost 1.57.0
+- Boost.NumPy
 - Caffe (modified caffe: https://github.com/mitmul/caffe)
     - NOTE: Build the `dev` branch of the above repository
 
