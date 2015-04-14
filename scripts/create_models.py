@@ -25,7 +25,7 @@ def data_layer(number, bottom, object_type):
   type: "PatchBasedSegmentationData"
   top: "data"
   top: "label"
-  patch_based_segmentation_data_param {{
+  patch_data_param {{
     source: "../../data/mass_{object_type}/{dataset}/train.lmdb"
     batch_size: {batch_size}
     rand_skip: {batch_size}
@@ -53,7 +53,7 @@ layer {{
   type: "PatchBasedSegmentationData"
   top: "data"
   top: "label"
-  patch_based_segmentation_data_param {{
+  patch_data_param {{
     source: "../../data/mass_{object_type}/{dataset}/test.lmdb"
     batch_size: {batch_size}
     rand_skip: {batch_size}
@@ -225,6 +225,19 @@ def relu_layer(number, bottom):
              bottom=bottom)
 
 
+def prelu_layer(number, bottom):
+    return '''layer {{
+  name: "prelu{number}"
+  type: "PReLU"
+  bottom: "{bottom}"
+  top: "prelu{number}"
+  param {{
+    decay_mult: 0
+  }}
+}}'''.format(number=number,
+             bottom=bottom)
+
+
 def dropout_layer(number, bottom):
     return '''layer {{
   name: "dropout{number}"
@@ -232,7 +245,7 @@ def dropout_layer(number, bottom):
   bottom: "{bottom}"
   top: "dropout{number}"
   dropout_param {{
-     dropout_ratio: 0.5
+    dropout_ratio: 0.5
   }}
 }}'''.format(number=number,
              bottom=bottom)
