@@ -8,6 +8,7 @@ import lmdb
 import numpy as np
 import cv2 as cv
 import json
+from os.path import basename
 
 
 def create_merged_map():
@@ -70,6 +71,10 @@ def create_dataset(sat_data_dir, map_data_dir, out_dir):
     env = lmdb.Environment(out_dir, map_size=1099511627776)
     txn = env.begin(write=True, buffers=True)
 
+    # create keys
+    keys = np.arange(5000000)
+    np.random.shuffle(keys)
+
     # get filenames
     sat_fns = np.asarray(sorted(glob.glob('%s/*.tif*' % sat_data_dir)))
     map_fns = np.asarray(sorted(glob.glob('%s/*.tif*' % map_data_dir)))
@@ -84,7 +89,7 @@ def create_dataset(sat_data_dir, map_data_dir, out_dir):
         sat_fn = os.path.abspath(sat_fn)
         map_fn = os.path.abspath(map_fn)
 
-        key = '%010d' % file_i
+        key = '%010d' % keys[file_i]
 
         data = json.dumps([sat_fn, map_fn])
         txn.put(key, data)
@@ -93,7 +98,7 @@ def create_dataset(sat_data_dir, map_data_dir, out_dir):
             txn.commit()
             txn = env.begin(write=True, buffers=True)
 
-        print file_i
+        print file_i, sat_fn, map_fn
 
     txn.commit()
     env.close()
@@ -110,6 +115,15 @@ if __name__ == '__main__':
     create_dataset('data/mass_merged/train/sat',
                    'data/mass_merged/train/map',
                    'data/mass_merged/lmdb/train.lmdb')
+    create_dataset('data/mass_merged_split/valid/sat',
+                   'data/mass_merged_split/valid/map',
+                   'data/mass_merged_split/lmdb/valid.lmdb')
+    create_dataset('data/mass_merged_split/test/sat',
+                   'data/mass_merged_split/test/map',
+                   'data/mass_merged_split/lmdb/test.lmdb')
+    create_dataset('data/mass_merged_split/train/sat',
+                   'data/mass_merged_split/train/map',
+                   'data/mass_merged_split/lmdb/train.lmdb')
     create_dataset('data/mass_roads/valid/sat',
                    'data/mass_roads/valid/map',
                    'data/mass_roads/lmdb/valid.lmdb')

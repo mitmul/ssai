@@ -22,7 +22,7 @@ batch_size = args.batch_size
 def data_layer(number, bottom, object_type):
     return '''layer {{
   name: "data"
-  type: "PatchBasedSegmentationData"
+  type: "PatchData"
   top: "data"
   top: "label"
   patch_data_param {{
@@ -50,7 +50,7 @@ def data_layer(number, bottom, object_type):
 }}
 layer {{
   name: "data"
-  type: "PatchBasedSegmentationData"
+  type: "PatchData"
   top: "data"
   top: "label"
   patch_data_param {{
