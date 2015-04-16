@@ -1,7 +1,7 @@
 {
   "VGG_PReLU": [
-    ["data", ["merged_split"]],
-    ["mvn"],
+    ["data", ["merged"]],
+    ["patch_transformer"],
     ["conv", [64, 3, 1]],
     ["relu"],
     ["conv", [64, 3, 1]],
@@ -45,7 +45,7 @@
     ["solver", [0.0005, 1.0, 10000, 2000000]]
   ],
   "VGG": [
-    ["data", ["merged_split"]],
+    ["data", ["merged"]],
     ["mvn"],
     ["conv", [64, 3, 1]],
     ["relu"],
@@ -90,7 +90,7 @@
     ["solver", [0.0005, 1.0, 10000, 2000000]]
   ],
   "Mnih_CNN": [
-    ["data", ["merged_split"]],
+    ["data", ["merged"]],
     ["mvn"],
     ["conv", [64, 16, 4]],
     ["relu"],
@@ -110,8 +110,25 @@
     ["loss", ["softmax", 1, [1, 1, 1], -1]],
     ["solver", [0.0005, 1.0, 10000, 2000000]]
   ],
+  "Mnih_CNN_Buildings": [
+    ["data", ["buildings"]],
+    ["patch_transformer"],
+    ["conv", [64, 16, 4]],
+    ["relu"],
+    ["pool", [2, 1]],
+    ["conv", [112, 4, 1]],
+    ["relu"],
+    ["conv", [80, 3, 1]],
+    ["relu"],
+    ["fc", [4096]],
+    ["relu"],
+    ["fc", [256]],
+    ["reshape", [1, 16, 16]],
+    ["loss", ["sigmoid"]],
+    ["solver", [0.0005, 1.0, 10000, 2000000]]
+  ],
   "Mnih_CNN_Zero": [
-    ["data", ["merged_split"]],
+    ["data", ["merged"]],
     ["mvn"],
     ["conv", [64, 16, 4]],
     ["relu"],
@@ -132,7 +149,7 @@
     ["solver", [0.0005, 1.0, 10000, 2000000]]
   ],
   "Mnih_CNN_Asym": [
-    ["data", ["merged_split"]],
+    ["data", ["merged"]],
     ["mvn"],
     ["conv", [64, 16, 4]],
     ["relu"],
@@ -153,7 +170,7 @@
     ["solver", [0.0005, 1.0, 10000, 2000000]]
   ],
   "Mnih_CNN_Asym_Zero": [
-    ["data", ["merged_split"]],
+    ["data", ["merged"]],
     ["mvn"],
     ["conv", [64, 16, 4]],
     ["relu"],
@@ -174,7 +191,7 @@
     ["solver", [0.0005, 1.0, 10000, 2000000]]
   ],
   "Mnih_CNN_Euclid": [
-    ["data", ["merged_split"]],
+    ["data", ["merged"]],
     ["mvn"],
     ["conv", [64, 16, 4]],
     ["relu"],

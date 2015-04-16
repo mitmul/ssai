@@ -87,7 +87,7 @@ def data_layer(number, bottom, data_class):
   top: "input_data"
   data_param {{
     backend: LMDB
-    source: "../../data/mass_{data_class}/lmdb/train_sat.lmdb"
+    source: "../../data/mass_{data_class}/lmdb/train_sat"
     batch_size: {batch_size}
   }}
   include: {{ phase: TRAIN }}
@@ -98,7 +98,7 @@ layer {{
   top: "input_label"
   data_param {{
     backend: LMDB
-    source: "../../data/mass_{data_class}/lmdb/train_map.lmdb"
+    source: "../../data/mass_{data_class}/lmdb/train_map"
     batch_size: {batch_size}
   }}
   include: {{ phase: TRAIN }}
@@ -109,7 +109,7 @@ layer {{
   top: "input_data"
   data_param {{
     backend: LMDB
-    source: "../../data/mass_{data_class}/lmdb/test_sat.lmdb"
+    source: "../../data/mass_{data_class}/lmdb/test_sat"
     batch_size: {batch_size}
   }}
   include: {{ phase: TEST }}
@@ -120,7 +120,7 @@ layer {{
   top: "input_label"
   data_param {{
     backend: LMDB
-    source: "../../data/mass_{data_class}/lmdb/test_map.lmdb"
+    source: "../../data/mass_{data_class}/lmdb/test_map"
     batch_size: {batch_size}
   }}
   include: {{ phase: TEST }}
@@ -130,15 +130,15 @@ layer {{
              batch_size=batch_size)
 
 
-def transformer_layer(number, bottom):
-    return '''layers {{
-  name: "transformer{number}"
+def patch_transformer_layer(number, bottom):
+    return '''layer {{
+  name: "patch_transformer{number}"
   type: "PatchTransformer"
   bottom: "input_data"
   bottom: "input_label"
-  top: "transformer{number}"
+  top: "patch_transformer{number}"
   top: "label"
-  augment_param {{
+  patch_transformer_param {{
     # common
     rotate: true
     # data
@@ -152,14 +152,14 @@ def transformer_layer(number, bottom):
   }}
   include: {{ phase: TRAIN }}
 }}
-layers {{
-  name: "transformer{number}"
+layer {{
+  name: "patch_transformer{number}"
   type: "PatchTransformer"
   bottom: "input_data"
   bottom: "input_label"
-  top: "transformer{number}"
+  top: "patch_transformer{number}"
   top: "label"
-  augment_param {{
+  patch_transformer_param {{
     # data
     crop_size: {crop_size}
     binarize: false
