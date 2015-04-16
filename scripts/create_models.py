@@ -19,7 +19,7 @@ crop_size = args.crop_size
 batch_size = args.batch_size
 
 
-def data_layer(number, bottom, object_type):
+def patch_data_layer(number, bottom, object_type):
     return '''layer {{
   name: "data"
   type: "PatchData"
@@ -78,6 +78,99 @@ layer {{
 }}'''.format(object_type=object_type,
              dataset=dataset,
              batch_size=batch_size)
+
+
+def data_layer(number, bottom, data_class):
+    return '''layer {{
+  name: "input_data"
+  type: "Data"
+  top: "input_data"
+  data_param {{
+    backend: LMDB
+    source: "../../data/mass_{data_class}/lmdb/train_sat.lmdb"
+    batch_size: {batch_size}
+  }}
+  include: {{ phase: TRAIN }}
+}}
+layer {{
+  name: "input_label"
+  type: "Data"
+  top: "input_label"
+  data_param {{
+    backend: LMDB
+    source: "../../data/mass_{data_class}/lmdb/train_map.lmdb"
+    batch_size: {batch_size}
+  }}
+  include: {{ phase: TRAIN }}
+}}
+layer {{
+  name: "input_data"
+  type: "Data"
+  top: "input_data"
+  data_param {{
+    backend: LMDB
+    source: "../../data/mass_{data_class}/lmdb/test_sat.lmdb"
+    batch_size: {batch_size}
+  }}
+  include: {{ phase: TEST }}
+}}
+layer {{
+  name: "input_label"
+  type: "Data"
+  top: "input_label"
+  data_param {{
+    backend: LMDB
+    source: "../../data/mass_{data_class}/lmdb/test_map.lmdb"
+    batch_size: {batch_size}
+  }}
+  include: {{ phase: TEST }}
+}}'''.format(number=number,
+             bottom=bottom,
+             data_class=data_class,
+             batch_size=batch_size)
+
+
+def transformer_layer(number, bottom):
+    return '''layers {{
+  name: "transformer{number}"
+  type: "PatchTransformer"
+  bottom: "input_data"
+  bottom: "input_label"
+  top: "transformer{number}"
+  top: "label"
+  augment_param {{
+    # common
+    rotate: true
+    # data
+    crop_size: {crop_size}
+    binarize: false
+    mean_normalize: true
+    stddev_normalize: true
+    # label
+    crop_size: 16
+    binarize: true
+  }}
+  include: {{ phase: TRAIN }}
+}}
+layers {{
+  name: "transformer{number}"
+  type: "PatchTransformer"
+  bottom: "input_data"
+  bottom: "input_label"
+  top: "transformer{number}"
+  top: "label"
+  augment_param {{
+    # data
+    crop_size: {crop_size}
+    binarize: false
+    mean_normalize: true
+    stddev_normalize: true
+    # label
+    crop_size: 16
+    binarize: true
+  }}
+  include: {{ phase: TEST }}
+}}'''.format(crop_size=crop_size, number=number)
 
 
 def conv_layer(number, bottom, num_output, kernel_size, stride):

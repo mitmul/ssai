@@ -140,7 +140,7 @@ def create_patches(sat_patch_size, map_patch_size, stride, map_ch,
     map_fns = map_fns[index]
 
     # create keys
-    keys = np.arange(5000000)
+    keys = np.arange(15000000)
     np.random.shuffle(keys)
 
     n_all_files = len(sat_fns)
@@ -192,7 +192,6 @@ def create_patches(sat_patch_size, map_patch_size, stride, map_ch,
                 elif map_ch == 1:
                     map_patch = map_patch.reshape((1, map_patch.shape[0],
                                                    map_patch.shape[1]))
-                    print map_patch
 
                 datum = caffe.io.array_to_datum(map_patch, 0)
                 value = datum.SerializeToString()
