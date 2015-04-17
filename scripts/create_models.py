@@ -19,13 +19,13 @@ crop_size = args.crop_size
 batch_size = args.batch_size
 
 
-def data_layer(number, bottom, object_type):
+def patch_data_layer(number, bottom, object_type):
     return '''layer {{
   name: "data"
-  type: "PatchBasedSegmentationData"
+  type: "PatchData"
   top: "data"
   top: "label"
-  patch_based_segmentation_data_param {{
+  patch_data_param {{
     source: "../../data/mass_{object_type}/{dataset}/train.lmdb"
     batch_size: {batch_size}
     rand_skip: {batch_size}
@@ -50,10 +50,10 @@ def data_layer(number, bottom, object_type):
 }}
 layer {{
   name: "data"
-  type: "PatchBasedSegmentationData"
+  type: "PatchData"
   top: "data"
   top: "label"
-  patch_based_segmentation_data_param {{
+  patch_data_param {{
     source: "../../data/mass_{object_type}/{dataset}/test.lmdb"
     batch_size: {batch_size}
     rand_skip: {batch_size}
@@ -78,6 +78,99 @@ layer {{
 }}'''.format(object_type=object_type,
              dataset=dataset,
              batch_size=batch_size)
+
+
+def data_layer(number, bottom, data_class):
+    return '''layer {{
+  name: "input_data"
+  type: "Data"
+  top: "input_data"
+  data_param {{
+    backend: LMDB
+    source: "../../data/mass_{data_class}/lmdb/train_sat"
+    batch_size: {batch_size}
+  }}
+  include: {{ phase: TRAIN }}
+}}
+layer {{
+  name: "input_label"
+  type: "Data"
+  top: "input_label"
+  data_param {{
+    backend: LMDB
+    source: "../../data/mass_{data_class}/lmdb/train_map"
+    batch_size: {batch_size}
+  }}
+  include: {{ phase: TRAIN }}
+}}
+layer {{
+  name: "input_data"
+  type: "Data"
+  top: "input_data"
+  data_param {{
+    backend: LMDB
+    source: "../../data/mass_{data_class}/lmdb/test_sat"
+    batch_size: {batch_size}
+  }}
+  include: {{ phase: TEST }}
+}}
+layer {{
+  name: "input_label"
+  type: "Data"
+  top: "input_label"
+  data_param {{
+    backend: LMDB
+    source: "../../data/mass_{data_class}/lmdb/test_map"
+    batch_size: {batch_size}
+  }}
+  include: {{ phase: TEST }}
+}}'''.format(number=number,
+             bottom=bottom,
+             data_class=data_class,
+             batch_size=batch_size)
+
+
+def patch_transformer_layer(number, bottom):
+    return '''layer {{
+  name: "patch_transformer{number}"
+  type: "PatchTransformer"
+  bottom: "input_data"
+  bottom: "input_label"
+  top: "patch_transformer{number}"
+  top: "label"
+  patch_transformer_param {{
+    # common
+    rotate: true
+    # data
+    crop_size: {crop_size}
+    binarize: false
+    mean_normalize: true
+    stddev_normalize: true
+    # label
+    crop_size: 16
+    binarize: true
+  }}
+  include: {{ phase: TRAIN }}
+}}
+layer {{
+  name: "patch_transformer{number}"
+  type: "PatchTransformer"
+  bottom: "input_data"
+  bottom: "input_label"
+  top: "patch_transformer{number}"
+  top: "label"
+  patch_transformer_param {{
+    # data
+    crop_size: {crop_size}
+    binarize: false
+    mean_normalize: true
+    stddev_normalize: true
+    # label
+    crop_size: 16
+    binarize: true
+  }}
+  include: {{ phase: TEST }}
+}}'''.format(crop_size=crop_size, number=number)
 
 
 def conv_layer(number, bottom, num_output, kernel_size, stride):
@@ -225,6 +318,19 @@ def relu_layer(number, bottom):
              bottom=bottom)
 
 
+def prelu_layer(number, bottom):
+    return '''layer {{
+  name: "prelu{number}"
+  type: "PReLU"
+  bottom: "{bottom}"
+  top: "prelu{number}"
+  param {{
+    decay_mult: 0
+  }}
+}}'''.format(number=number,
+             bottom=bottom)
+
+
 def dropout_layer(number, bottom):
     return '''layer {{
   name: "dropout{number}"
@@ -232,7 +338,7 @@ def dropout_layer(number, bottom):
   bottom: "{bottom}"
   top: "dropout{number}"
   dropout_param {{
-     dropout_ratio: 0.5
+    dropout_ratio: 0.5
   }}
 }}'''.format(number=number,
              bottom=bottom)
@@ -446,7 +552,7 @@ if __name__ == '__main__':
                 if layer[0] == 'loss':
                     txt = globals()['predict_layer'](i, bottom, layer[1][0])
                 elif layer[0] == 'euclidean_loss':
-                    txt = globals()['predict_layer'](i, bottom, 'euclidean')
+                    txt = ''
                 else:
                     txt = globals()['%s_layer' % layer[0]](
                         i, bottom, *layer[1])
