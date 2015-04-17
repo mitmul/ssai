@@ -173,7 +173,7 @@ layer {{
 }}'''.format(crop_size=crop_size, number=number)
 
 
-def conv_layer(number, bottom, num_output, kernel_size, stride):
+def conv_layer(number, bottom, num_output, kernel_size, stride, pad=0):
     return '''layer {{
   name: "conv{number}"
   type: "Convolution"
@@ -191,6 +191,7 @@ def conv_layer(number, bottom, num_output, kernel_size, stride):
     num_output: {num_output}
     kernel_size: {kernel_size}
     stride: {stride}
+    pad: {pad}
     weight_filler {{
       type: "xavier"
     }}
@@ -202,7 +203,8 @@ def conv_layer(number, bottom, num_output, kernel_size, stride):
              bottom=bottom,
              num_output=num_output,
              kernel_size=kernel_size,
-             stride=stride)
+             stride=stride,
+             pad=pad)
 
 
 def maxout_layer(number, bottom):
@@ -351,9 +353,12 @@ def reshape_layer(number, bottom, channels, height, width):
   bottom: "{bottom}"
   top: "reshape{number}"
   reshape_param {{
-    channels: {channels}
-    height: {height}
-    width: {width}
+    shape {{
+      dim: 0
+      dim: {channels}
+      dim: {height}
+      dim: {width}
+    }}
   }}
 }}'''.format(number=number,
              bottom=bottom,
