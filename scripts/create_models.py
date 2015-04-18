@@ -19,13 +19,13 @@ crop_size = args.crop_size
 batch_size = args.batch_size
 
 
-def data_layer(number, bottom, object_type):
+def patch_data_layer(number, bottom, object_type):
     return '''layer {{
   name: "data"
-  type: "PatchBasedSegmentationData"
+  type: "PatchData"
   top: "data"
   top: "label"
-  patch_based_segmentation_data_param {{
+  patch_data_param {{
     source: "../../data/mass_{object_type}/{dataset}/train.lmdb"
     batch_size: {batch_size}
     rand_skip: {batch_size}
@@ -50,10 +50,10 @@ def data_layer(number, bottom, object_type):
 }}
 layer {{
   name: "data"
-  type: "PatchBasedSegmentationData"
+  type: "PatchData"
   top: "data"
   top: "label"
-  patch_based_segmentation_data_param {{
+  patch_data_param {{
     source: "../../data/mass_{object_type}/{dataset}/test.lmdb"
     batch_size: {batch_size}
     rand_skip: {batch_size}
@@ -80,16 +80,118 @@ layer {{
              batch_size=batch_size)
 
 
-def conv_layer(number, bottom, num_output, kernel_size, stride):
+def data_layer(number, bottom, data_class):
+    return '''layer {{
+  name: "input_data"
+  type: "Data"
+  top: "input_data"
+  data_param {{
+    backend: LMDB
+    source: "../../data/mass_{data_class}/lmdb/train_sat"
+    batch_size: {batch_size}
+  }}
+  include: {{ phase: TRAIN }}
+}}
+layer {{
+  name: "input_label"
+  type: "Data"
+  top: "input_label"
+  data_param {{
+    backend: LMDB
+    source: "../../data/mass_{data_class}/lmdb/train_map"
+    batch_size: {batch_size}
+  }}
+  include: {{ phase: TRAIN }}
+}}
+layer {{
+  name: "input_data"
+  type: "Data"
+  top: "input_data"
+  data_param {{
+    backend: LMDB
+    source: "../../data/mass_{data_class}/lmdb/test_sat"
+    batch_size: {batch_size}
+  }}
+  include: {{ phase: TEST }}
+}}
+layer {{
+  name: "input_label"
+  type: "Data"
+  top: "input_label"
+  data_param {{
+    backend: LMDB
+    source: "../../data/mass_{data_class}/lmdb/test_map"
+    batch_size: {batch_size}
+  }}
+  include: {{ phase: TEST }}
+}}'''.format(number=number,
+             bottom=bottom,
+             data_class=data_class,
+             batch_size=batch_size)
+
+
+def patch_transformer_layer(number, bottom):
+    return '''layer {{
+  name: "patch_transformer{number}"
+  type: "PatchTransformer"
+  bottom: "input_data"
+  bottom: "input_label"
+  top: "patch_transformer{number}"
+  top: "label"
+  patch_transformer_param {{
+    # common
+    rotate: true
+    # data
+    crop_size: {crop_size}
+    binarize: false
+    mean_normalize: true
+    stddev_normalize: true
+    # label
+    crop_size: 16
+    binarize: true
+  }}
+  include: {{ phase: TRAIN }}
+}}
+layer {{
+  name: "patch_transformer{number}"
+  type: "PatchTransformer"
+  bottom: "input_data"
+  bottom: "input_label"
+  top: "patch_transformer{number}"
+  top: "label"
+  patch_transformer_param {{
+    # data
+    crop_size: {crop_size}
+    binarize: false
+    mean_normalize: true
+    stddev_normalize: true
+    # label
+    crop_size: 16
+    binarize: true
+  }}
+  include: {{ phase: TEST }}
+}}'''.format(crop_size=crop_size, number=number)
+
+
+def conv_layer(number, bottom, num_output, kernel_size, stride, pad=0):
     return '''layer {{
   name: "conv{number}"
   type: "Convolution"
   bottom: "{bottom}"
   top: "conv{number}"
+  param {{
+    lr_mult: 1
+    decay_mult: 1
+  }}
+  param {{
+    lr_mult: 2
+    decay_mult: 0
+  }}
   convolution_param {{
     num_output: {num_output}
     kernel_size: {kernel_size}
     stride: {stride}
+    pad: {pad}
     weight_filler {{
       type: "xavier"
     }}
@@ -101,7 +203,8 @@ def conv_layer(number, bottom, num_output, kernel_size, stride):
              bottom=bottom,
              num_output=num_output,
              kernel_size=kernel_size,
-             stride=stride)
+             stride=stride,
+             pad=pad)
 
 
 def maxout_layer(number, bottom):
@@ -185,6 +288,14 @@ def fc_layer(number, bottom, num_output):
   type: "InnerProduct"
   bottom: "{bottom}"
   top: "fc{number}"
+  param {{
+    lr_mult: 1
+    decay_mult: 1
+  }}
+  param {{
+    lr_mult: 2
+    decay_mult: 0
+  }}
   inner_product_param {{
     num_output: {num_output}
     weight_filler {{
@@ -209,6 +320,19 @@ def relu_layer(number, bottom):
              bottom=bottom)
 
 
+def prelu_layer(number, bottom):
+    return '''layer {{
+  name: "prelu{number}"
+  type: "PReLU"
+  bottom: "{bottom}"
+  top: "prelu{number}"
+  param {{
+    decay_mult: 0
+  }}
+}}'''.format(number=number,
+             bottom=bottom)
+
+
 def dropout_layer(number, bottom):
     return '''layer {{
   name: "dropout{number}"
@@ -216,7 +340,7 @@ def dropout_layer(number, bottom):
   bottom: "{bottom}"
   top: "dropout{number}"
   dropout_param {{
-     dropout_ratio: 0.5
+    dropout_ratio: 0.5
   }}
 }}'''.format(number=number,
              bottom=bottom)
@@ -229,9 +353,12 @@ def reshape_layer(number, bottom, channels, height, width):
   bottom: "{bottom}"
   top: "reshape{number}"
   reshape_param {{
-    channels: {channels}
-    height: {height}
-    width: {width}
+    shape {{
+      dim: 0
+      dim: {channels}
+      dim: {height}
+      dim: {width}
+    }}
   }}
 }}'''.format(number=number,
              bottom=bottom,
@@ -255,7 +382,18 @@ def mvn_layer(number, bottom, across_channels='false'):
              across_channels=across_channels)
 
 
-def loss_layer(number, bottom, loss_type, weight=1, weights=None):
+def softmax_layer(number, bottom):
+    return '''layer {{
+  name: "softmax{number}"
+  type: "Softmax"
+  bottom: "{bottom}"
+  top: "softmax{number}"
+}}'''.format(number=number,
+             bottom=bottom)
+
+
+def loss_layer(
+        number, bottom, loss_type, weight=1, weights=None, zero_channel=-1):
     txt = '''layer {{
   name: "predict_loss"
   type: "{loss_type}CrossEntropyLoss"
@@ -286,6 +424,7 @@ layer {{
     weights: {weights0}
     weights: {weights1}
     weights: {weights2}
+    zero_channel: {zero_channel}
   }}
 }}
 layer {{
@@ -300,18 +439,20 @@ layer {{
              weight=weight,
              weights0=weights[0],
              weights1=weights[1],
-             weights2=weights[2])
+             weights2=weights[2],
+             zero_channel=zero_channel)
 
     return txt
 
 
-def euclidean_loss_layer(number, bottom):
+def euclidean_loss_layer(number, bottom, weight):
     return '''layer {{
   name: "euclidean_loss"
   type: "EuclideanLoss"
   bottom: "{bottom}"
   bottom: "label"
   top: "predict_loss"
+  loss_weight: {weight}
 }}
 
 layer {{
@@ -322,7 +463,8 @@ layer {{
   top: "error_rate"
   include: {{ phase: TEST }}
 }}'''.format(number=number,
-             bottom=bottom)
+             bottom=bottom,
+             weight=weight)
 
 
 def predict_layer(number, bottom, loss_type):
@@ -346,7 +488,7 @@ lr_policy: "step"
 gamma: {gamma}
 stepsize: {stepsize}
 momentum: 0.9
-weight_decay: 0.0002
+weight_decay: 0.0005
 
 display: 100
 max_iter: {max_iter}
@@ -414,6 +556,8 @@ if __name__ == '__main__':
             if len(layer) > 1:
                 if layer[0] == 'loss':
                     txt = globals()['predict_layer'](i, bottom, layer[1][0])
+                elif layer[0] == 'euclidean_loss':
+                    txt = ''
                 else:
                     txt = globals()['%s_layer' % layer[0]](
                         i, bottom, *layer[1])

@@ -8,6 +8,13 @@ import lmdb
 import numpy as np
 import cv2 as cv
 import json
+import caffe
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--dataset', '-d', type=str)
+args = parser.parse_args()
+print args
 
 
 def create_merged_map():
@@ -57,11 +64,11 @@ def create_single_maps(map_data_dir):
         png_fn = map_fn.replace(ext, '.png')
         if not os.path.exists(png_fn):
             cv.imwrite(png_fn, map)
-            _, map = cv.threshold(map, 125, 1, cv.THRESH_BINARY)
+            _, map = cv.threshold(map, 1, 1, cv.THRESH_BINARY)
             cv.imwrite(map_fn, map)
 
 
-def create_dataset(sat_data_dir, map_data_dir, out_dir):
+def create_img_filelist(sat_data_dir, map_data_dir, out_dir):
     if os.path.exists(out_dir):
         shutil.rmtree(out_dir)
     os.makedirs(out_dir)
@@ -69,6 +76,10 @@ def create_dataset(sat_data_dir, map_data_dir, out_dir):
     # db
     env = lmdb.Environment(out_dir, map_size=1099511627776)
     txn = env.begin(write=True, buffers=True)
+
+    # create keys
+    keys = np.arange(5000000)
+    np.random.shuffle(keys)
 
     # get filenames
     sat_fns = np.asarray(sorted(glob.glob('%s/*.tif*' % sat_data_dir)))
@@ -84,7 +95,7 @@ def create_dataset(sat_data_dir, map_data_dir, out_dir):
         sat_fn = os.path.abspath(sat_fn)
         map_fn = os.path.abspath(map_fn)
 
-        key = '%010d' % file_i
+        key = '%010d' % keys[file_i]
 
         data = json.dumps([sat_fn, map_fn])
         txn.put(key, data)
@@ -93,38 +104,174 @@ def create_dataset(sat_data_dir, map_data_dir, out_dir):
             txn.commit()
             txn = env.begin(write=True, buffers=True)
 
-        print file_i
+        print file_i, sat_fn, map_fn
 
     txn.commit()
     env.close()
 
+
+def create_patches(sat_patch_size, map_patch_size, stride, map_ch,
+                   sat_data_dir, map_data_dir,
+                   sat_out_dir, map_out_dir):
+    if os.path.exists(sat_out_dir):
+        shutil.rmtree(sat_out_dir)
+    if os.path.exists(map_out_dir):
+        shutil.rmtree(map_out_dir)
+    os.makedirs(sat_out_dir)
+    os.makedirs(map_out_dir)
+
+    # db
+    sat_env = lmdb.Environment(sat_out_dir, map_size=1099511627776)
+    sat_txn = sat_env.begin(write=True, buffers=True)
+    map_env = lmdb.Environment(map_out_dir, map_size=1099511627776)
+    map_txn = map_env.begin(write=True, buffers=True)
+
+    # patch size
+    sat_size = sat_patch_size
+    map_size = map_patch_size
+    print 'patch size:', sat_size, map_size, stride
+
+    # get filenames
+    sat_fns = np.asarray(sorted(glob.glob('%s/*.tif*' % sat_data_dir)))
+    map_fns = np.asarray(sorted(glob.glob('%s/*.tif*' % map_data_dir)))
+    index = np.arange(len(sat_fns))
+    np.random.shuffle(index)
+    sat_fns = sat_fns[index]
+    map_fns = map_fns[index]
+
+    # create keys
+    keys = np.arange(15000000)
+    np.random.shuffle(keys)
+
+    n_all_files = len(sat_fns)
+    print 'n_all_files:', n_all_files
+
+    n_patches = 0
+    for file_i, (sat_fn, map_fn) in enumerate(zip(sat_fns, map_fns)):
+        if ((os.path.basename(sat_fn).split('.')[0])
+                != (os.path.basename(map_fn).split('.')[0])):
+            print 'File names are different',
+            print sat_fn, map_fn
+            return
+
+        sat_im = cv.imread(sat_fn, cv.IMREAD_COLOR)
+        map_im = cv.imread(map_fn, cv.IMREAD_GRAYSCALE)
+
+        for y in range(0, sat_im.shape[0] + stride, stride):
+            for x in range(0, sat_im.shape[1] + stride, stride):
+                if (y + sat_size) > sat_im.shape[0]:
+                    y = sat_im.shape[0] - sat_size
+                if (x + sat_size) > sat_im.shape[1]:
+                    x = sat_im.shape[1] - sat_size
+
+                sat_patch = np.copy(sat_im[y:y + sat_size, x:x + sat_size])
+                map_patch = np.copy(map_im[y + sat_size / 2 - map_size / 2:
+                                           y + sat_size / 2 + map_size / 2,
+                                           x + sat_size / 2 - map_size / 2:
+                                           x + sat_size / 2 + map_size / 2])
+
+                # exclude patch including big white region
+                if np.sum(np.sum(sat_patch, axis=2) == (255 * 3)) > 16:
+                    continue
+
+                key = '%010d' % keys[n_patches]
+
+                # sat db
+                sat_patch = sat_patch.swapaxes(0, 2).swapaxes(1, 2)
+                datum = caffe.io.array_to_datum(sat_patch, 0)
+                value = datum.SerializeToString()
+                sat_txn.put(key, value)
+
+                # map db
+                if map_ch == 3:
+                    map_patch_multi = []
+                    for ch in range(map_ch):
+                        map_patch_multi.append(np.asarray(map_patch == ch,
+                                                          dtype=np.uint8))
+                    map_patch = np.asarray(map_patch_multi, dtype=np.uint8)
+                elif map_ch == 1:
+                    map_patch = map_patch.reshape((1, map_patch.shape[0],
+                                                   map_patch.shape[1]))
+
+                datum = caffe.io.array_to_datum(map_patch, 0)
+                value = datum.SerializeToString()
+                map_txn.put(key, value)
+
+                n_patches += 1
+
+                if n_patches % 10000 == 0:
+                    sat_txn.commit()
+                    sat_txn = sat_env.begin(write=True, buffers=True)
+                    map_txn.commit()
+                    map_txn = map_env.begin(write=True, buffers=True)
+
+        print file_i, '/', n_all_files, 'n_patches:', n_patches
+
+    sat_txn.commit()
+    sat_env.close()
+    map_txn.commit()
+    map_env.close()
+    print 'patches:\t', n_patches
+
 if __name__ == '__main__':
-    # create_merged_map()
-    # create_single_maps('data/mass_roads/valid/map')
-    create_dataset('data/mass_merged/valid/sat',
-                   'data/mass_merged/valid/map',
-                   'data/mass_merged/lmdb/valid.lmdb')
-    create_dataset('data/mass_merged/test/sat',
-                   'data/mass_merged/test/map',
-                   'data/mass_merged/lmdb/test.lmdb')
-    create_dataset('data/mass_merged/train/sat',
-                   'data/mass_merged/train/map',
-                   'data/mass_merged/lmdb/train.lmdb')
-    create_dataset('data/mass_roads/valid/sat',
-                   'data/mass_roads/valid/map',
-                   'data/mass_roads/lmdb/valid.lmdb')
-    create_dataset('data/mass_roads/test/sat',
-                   'data/mass_roads/test/map',
-                   'data/mass_roads/lmdb/test.lmdb')
-    create_dataset('data/mass_roads/train/sat',
-                   'data/mass_roads/train/map',
-                   'data/mass_roads/lmdb/train.lmdb')
-    create_dataset('data/mass_buildings/valid/sat',
-                   'data/mass_buildings/valid/map',
-                   'data/mass_buildings/lmdb/valid.lmdb')
-    create_dataset('data/mass_buildings/test/sat',
-                   'data/mass_buildings/test/map',
-                   'data/mass_buildings/lmdb/test.lmdb')
-    create_dataset('data/mass_buildings/train/sat',
-                   'data/mass_buildings/train/map',
-                   'data/mass_buildings/lmdb/train.lmdb')
+    if args.dataset == 'multi':
+        create_merged_map()
+
+    if args.dataset == 'single':
+        create_single_maps('data/mass_roads/valid/map')
+        create_single_maps('data/mass_roads/test/map')
+        create_single_maps('data/mass_roads/train/map')
+        create_single_maps('data/mass_buildings/valid/map')
+        create_single_maps('data/mass_buildings/test/map')
+        create_single_maps('data/mass_buildings/train/map')
+
+    if args.dataset == 'roads':
+        create_patches(92, 24, 16, 1,
+                       'data/mass_roads/valid/sat',
+                       'data/mass_roads/valid/map',
+                       'data/mass_roads/lmdb/valid_sat',
+                       'data/mass_roads/lmdb/valid_map')
+        create_patches(92, 24, 16, 1,
+                       'data/mass_roads/test/sat',
+                       'data/mass_roads/test/map',
+                       'data/mass_roads/lmdb/test_sat',
+                       'data/mass_roads/lmdb/test_map')
+        create_patches(92, 24, 16, 1,
+                       'data/mass_roads/train/sat',
+                       'data/mass_roads/train/map',
+                       'data/mass_roads/lmdb/train_sat',
+                       'data/mass_roads/lmdb/train_map')
+
+    if args.dataset == 'buildings':
+        create_patches(92, 24, 16, 1,
+                       'data/mass_buildings/valid/sat',
+                       'data/mass_buildings/valid/map',
+                       'data/mass_buildings/lmdb/valid_sat',
+                       'data/mass_buildings/lmdb/valid_map')
+        create_patches(92, 24, 16, 1,
+                       'data/mass_buildings/test/sat',
+                       'data/mass_buildings/test/map',
+                       'data/mass_buildings/lmdb/test_sat',
+                       'data/mass_buildings/lmdb/test_map')
+        create_patches(92, 24, 16, 1,
+                       'data/mass_buildings/train/sat',
+                       'data/mass_buildings/train/map',
+                       'data/mass_buildings/lmdb/train_sat',
+                       'data/mass_buildings/lmdb/train_map')
+
+    if args.dataset == 'merged':
+        create_patches(92, 24, 16, 3,
+                       'data/mass_merged/valid/sat',
+                       'data/mass_merged/valid/map',
+                       'data/mass_merged/lmdb/valid_sat',
+                       'data/mass_merged/lmdb/valid_map')
+        create_patches(92, 24, 16, 3,
+                       'data/mass_merged/test/sat',
+                       'data/mass_merged/test/map',
+                       'data/mass_merged/lmdb/test_sat',
+                       'data/mass_merged/lmdb/test_map')
+        create_patches(92, 24, 16, 3,
+                       'data/mass_merged/train/sat',
+                       'data/mass_merged/train/map',
+                       'data/mass_merged/lmdb/train_sat',
+                       'data/mass_merged/lmdb/train_map')

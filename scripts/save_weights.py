@@ -9,6 +9,8 @@ import numpy as np
 import cv2 as cv
 import argparse
 
+caffe.set_device(0)
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--dir', '-d', type=str)
 args = parser.parse_args()
@@ -66,12 +68,16 @@ if __name__ == '__main__':
     define = '%s/predict.prototxt' % args.dir
     if not os.path.exists('weights'):
         os.mkdir('weights')
-    for model in glob.glob('%s/snapshots/*.caffemodel' % args.dir):
+    for model in sorted(glob.glob('%s/snapshots/*.caffemodel' % args.dir)):
         num = re.search(ur'_([0-9]+)\.', model).groups()[0]
         if not os.path.exists('%s/weights/weight_%s.png' % (args.dir, num)):
             net = caffe.Net(define, model, caffe.TEST)
             print define, model
 
             print net.params
-            conv_W = net.params['conv1'][0].data
+            conv_W = None
+            if 'conv1' in net.params:
+                conv_W = net.params['conv1'][0].data
+            elif 'conv2' in net.params:
+                conv_W = net.params['conv2'][0].data
             save_tiles(conv_W, '%s/weights/weight_%s' % (args.dir, num))

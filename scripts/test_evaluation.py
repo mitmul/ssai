@@ -24,7 +24,7 @@ parser.add_argument('--result_dir', '-d', type=str)
 args = parser.parse_args()
 print args
 
-ch = 3
+ch = 1
 steps = 256
 relax = 3
 pad = 24
@@ -33,7 +33,7 @@ n_thread = 8
 result_dir = args.result_dir
 n_iter = int(result_dir.split('_')[-1])
 label_dir = args.map_dir
-result_fns = glob.glob('%s/*.npy' % result_dir)
+result_fns = sorted(glob.glob('%s/*.npy' % result_dir))
 n_results = len(result_fns)
 eval_dir = '%s/evaluation_%d' % (result_dir, n_iter)
 
@@ -65,9 +65,8 @@ def get_pre_rec(positive, prec_tp, true, recall_tp, steps):
     for t in range(steps):
         if positive[t] < prec_tp[t] or true[t] < recall_tp[t]:
             sys.exit('calculation is wrong')
-        pre = float(prec_tp[t]) / \
-            positive[t] if positive[t] > 0 else 0
-        rec = float(recall_tp[t]) / true[t] if true[t] > 0 else 1
+        pre = float(prec_tp[t]) / positive[t] if positive[t] > 0 else 0
+        rec = float(recall_tp[t]) / true[t] if true[t] > 0 else 0
         pre_rec.append([pre, rec])
         if pre != 1 and rec != 1 and pre > 0 and rec > 0:
             breakeven.append([pre, rec])
@@ -82,7 +81,7 @@ def draw_pre_rec_curve(pre_rec, breakeven_pt):
     plt.clf()
     plt.plot(pre_rec[:, 0], pre_rec[:, 1])
     plt.plot(pre_rec[breakeven_pt, 0], pre_rec[breakeven_pt, 1],
-             'x', label='breakeven: %f' % (pre_rec[breakeven_pt, 1]))
+             'x', label='breakeven recall: %f' % (pre_rec[breakeven_pt, 1]))
     plt.ylabel('recall')
     plt.xlabel('precision')
     plt.ylim([0.0, 1.1])
@@ -107,12 +106,18 @@ def worker_thread(result_fn_queue):
         label = label[pad:pad + pred.shape[0], pad:pad + pred.shape[1]]
         cv.imwrite('%s/label_%s.png' % (out_dir, img_id), label * 125)
 
+        print 'pred_shape:', pred.shape
+
         for c in range(ch):
             for t in range(0, steps):
                 threshold = 1.0 / steps * t
+
                 pred_vals = np.array(
                     pred[:, :, c] >= threshold, dtype=np.int32)
-                label_vals = np.array(label == c, dtype=np.int32)
+
+                label_vals = np.array(label, dtype=np.int32)
+                if ch > 1:
+                    label_vals = np.array(label == c, dtype=np.int32)
 
                 all_positive[i, c, t] = np.sum(pred_vals)
                 all_prec_tp[i, c, t] = relax_precision(

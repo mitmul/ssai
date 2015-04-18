@@ -57,7 +57,7 @@ def get_predict(ortho, net, num,
             orthos = o_patches[n_patches - num:]
         else:
             orthos = o_patches[i * num:(i + 1) * num]
-        net.blobs['data'].data[:, :, :, :] = orthos
+        net.blobs['input_data'].data[:, :, :, :] = orthos
         predicts = net.forward().values()[0]
 
         for j, predict in enumerate(predicts):
@@ -97,7 +97,7 @@ if __name__ == '__main__':
     net = caffe.Net(model_fn, weight_fn, caffe.TEST)
 
     num = 64
-    l_ch, l_height, l_width = 3, 16, 16
+    l_ch, l_height, l_width = 1, 16, 16
     d_ch, d_height, d_width = 3, 64, 64
 
     for img_fname in glob.glob('%s/*.tif*' % args.img_dir):
