@@ -28,7 +28,7 @@ def save_loss_curve(dname, fname='caffe.INFO'):
         fname = 'nohup.out'
     for line in open('%s/%s' % (dname, fname)):
         if 'Iteration' in line and 'loss' in line:
-            tmp = re.search(ur'Iteration\s([0-9]+)', line)
+            tmp = re.search(ur'Iteration\s([0-9]+),', line)
             if tmp:
                 l_iter.append(int(tmp.groups()[0]))
         if 'Train net output' in line and 'predict_loss' in line:
@@ -55,14 +55,16 @@ def save_loss_curve(dname, fname='caffe.INFO'):
     test = test[args.start:]
 
     plt.clf()
+    min_t = 0.0 if len(loss) == 0 else np.min(loss)
+    pos_t = 0 if len(loss) == 0 else l_iter[np.argmin(loss)]
     min_l = 0.0 if len(test) == 0 else np.min(test)
     pos_l = 0 if len(test) == 0 else l_iter[np.argmin(test)]
     min_e = 0.0 if len(error) == 0 else np.min(error)
     pos_e = 0 if len(error) == 0 else t_iter[np.argmin(error)]
 
     plt.subplot(2, 1, 1)
-    plt.title('%s\nmin test loss:%f (%d) min error: %f (%d)' %
-              (os.path.basename(dname), min_l, pos_l, min_e, pos_e))
+    plt.title('%s\nmin training loss:%f (%d)\nmin test loss:%f (%d)\nmin error: %f (%d)' %
+              (os.path.basename(dname), min_t, pos_t, min_l, pos_l, min_e, pos_e))
     plt.xlabel('iteration')
     plt.ylabel('loss')
     plt.plot(l_iter[:len(loss)], loss, label='traning loss')
@@ -77,7 +79,7 @@ def save_loss_curve(dname, fname='caffe.INFO'):
     plt.legend(loc='upper right')
     plt.grid(linestyle='--')
 
-    plt.savefig('%s/loss.png' % dname)
+    plt.savefig('%s/loss.png' % dname, bbox_inches='tight')
 
 
 if __name__ == '__main__':

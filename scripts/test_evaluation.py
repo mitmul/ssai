@@ -24,7 +24,7 @@ parser.add_argument('--result_dir', '-d', type=str)
 args = parser.parse_args()
 print args
 
-ch = 1
+ch = 3
 steps = 256
 relax = 3
 pad = 24
