@@ -21,10 +21,11 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--map_dir', '-i', type=str)
 parser.add_argument('--result_dir', '-d', type=str)
+parser.add_argument('--channel', '-c', type=int, default=3)
 args = parser.parse_args()
 print args
 
-ch = 3
+ch = args.channel
 steps = 256
 relax = 3
 pad = 24

@@ -54,7 +54,7 @@ layer {{
   top: "data"
   top: "label"
   patch_data_param {{
-    source: "../../data/mass_{object_type}/{dataset}/test.lmdb"
+    source: "../../data/mass_{object_type}/{dataset}/valid.lmdb"
     batch_size: {batch_size}
     rand_skip: {batch_size}
 
@@ -109,7 +109,7 @@ layer {{
   top: "input_data"
   data_param {{
     backend: LMDB
-    source: "../../data/mass_{data_class}/lmdb/test_sat"
+    source: "../../data/mass_{data_class}/lmdb/valid_sat"
     batch_size: {batch_size}
   }}
   include: {{ phase: TEST }}
@@ -120,7 +120,7 @@ layer {{
   top: "input_label"
   data_param {{
     backend: LMDB
-    source: "../../data/mass_{data_class}/lmdb/test_map"
+    source: "../../data/mass_{data_class}/lmdb/valid_map"
     batch_size: {batch_size}
   }}
   include: {{ phase: TEST }}
@@ -479,8 +479,8 @@ def predict_layer(number, bottom, loss_type):
 
 def solver(model_name, base_lr, gamma, stepsize, max_iter):
     return '''net: "train_test.prototxt"
-test_iter: 10
-test_interval: 1000
+test_iter: 100
+test_interval: 10000
 
 solver_type: SGD
 base_lr: {base_lr}
@@ -571,6 +571,6 @@ if __name__ == '__main__':
         fp.close()
 
         subprocess.check_output(
-            ['python', '/home/ubuntu/Libraries/caffe/python/draw_net.py',
+            ['python', '$HOME/Libraries/caffe/python/draw_net.py',
              'models/%s/train_test.prototxt' % model_name,
              'models/%s/net.png' % model_name])
