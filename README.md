@@ -23,9 +23,12 @@ Extract building and road from aerial imagery
 
 ## Massatusetts Building & Road dataset
 
-- train: 3849568 patches
+- train: 1119872 patches
+    - epoch: 8749 mini-batches (mini-batch size: 128)
 - valid: 36100 patches
+    - epoch: 282 mini-batches (mini-batch size: 128)
 - test: 89968 patches
+    - epoch: 703 mini-batches (mini-batch size: 128)
 
 # Create Models
 
