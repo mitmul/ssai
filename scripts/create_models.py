@@ -18,6 +18,8 @@ dataset = args.dataset_backend
 crop_size = args.crop_size
 batch_size = args.batch_size
 
+home_dir = subprocess.check_output('echo $HOME', shell=True).strip()
+
 
 def patch_data_layer(number, bottom, object_type):
     return '''layer {{
@@ -571,6 +573,6 @@ if __name__ == '__main__':
         fp.close()
 
         subprocess.check_output(
-            ['python', '$HOME/Libraries/caffe/python/draw_net.py',
+            ['python', '%s/Libraries/caffe/python/draw_net.py' % home_dir,
              'models/%s/train_test.prototxt' % model_name,
              'models/%s/net.png' % model_name])
