@@ -67,7 +67,7 @@ def save_loss_curve(dname, fname='caffe.INFO'):
         os.path.basename(dname), min_t, pos_t)
     title += 'min test loss:%f (%d)\n' % (min_l, pos_l)
     title += 'min error: %f (%d)' % (min_e, pos_e)
-    plt.title()
+    plt.title(title)
     plt.xlabel('iteration')
     plt.ylabel('loss')
     plt.plot(l_iter[:len(loss)], loss, label='traning loss')
