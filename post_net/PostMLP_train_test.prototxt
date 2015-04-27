@@ -1,0 +1,202 @@
+name: "PostMLP"
+layer {
+  name: "input_data"
+  type: "Data"
+  top: "input_data"
+  data_param {
+    backend: LMDB
+    source: "postnet110000/lmdb/train_pred"
+    batch_size: 128
+  }
+  include: { phase: TRAIN }
+}
+layer {
+  name: "input_label"
+  type: "Data"
+  top: "input_label"
+  data_param {
+    backend: LMDB
+    source: "postnet110000/lmdb/train_map"
+    batch_size: 128
+  }
+  include: { phase: TRAIN }
+}
+layer {
+  name: "input_data"
+  type: "Data"
+  top: "input_data"
+  data_param {
+    backend: LMDB
+    source: "postnet110000/lmdb/valid_pred"
+    batch_size: 128
+  }
+  include: { phase: TEST }
+}
+layer {
+  name: "input_label"
+  type: "Data"
+  top: "input_label"
+  data_param {
+    backend: LMDB
+    source: "postnet110000/lmdb/valid_map"
+    batch_size: 128
+  }
+  include: { phase: TEST }
+}
+layer {
+  name: "patch_transformer1"
+  type: "PatchTransformer"
+  bottom: "input_data"
+  bottom: "input_label"
+  top: "patch_transformer1"
+  top: "label"
+  patch_transformer_param {
+    # common
+    rotate: true
+    # data
+    crop_size: 64
+    binarize: false
+    mean_normalize: true
+    stddev_normalize: true
+    # label
+    crop_size: 16
+    binarize: true
+  }
+  include: { phase: TRAIN }
+}
+layer {
+  name: "patch_transformer1"
+  type: "PatchTransformer"
+  bottom: "input_data"
+  bottom: "input_label"
+  top: "patch_transformer1"
+  top: "label"
+  patch_transformer_param {
+    # data
+    crop_size: 64
+    binarize: false
+    mean_normalize: true
+    stddev_normalize: true
+    # label
+    crop_size: 16
+    binarize: true
+  }
+  include: { phase: TEST }
+}
+layer {
+  name: "fc1"
+  type: "InnerProduct"
+  bottom: "patch_transformer1"
+  top: "fc1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 4096
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu2"
+  type: "ReLU"
+  bottom: "fc1"
+  top: "relu2"
+}
+layer {
+  name: "fc3"
+  type: "InnerProduct"
+  bottom: "relu2"
+  top: "fc3"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 4096
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu4"
+  type: "ReLU"
+  bottom: "fc3"
+  top: "relu4"
+}
+layer {
+  name: "fc5"
+  type: "InnerProduct"
+  bottom: "relu4"
+  top: "fc5"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 768
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "reshape6"
+  type: "Reshape"
+  bottom: "fc5"
+  top: "reshape6"
+  reshape_param {
+    shape {
+      dim: 0
+      dim: 3
+      dim: 16
+      dim: 16
+    }
+  }
+}
+layer {
+  name: "predict_loss"
+  type: "SoftmaxCrossEntropyLoss"
+  bottom: "reshape6"
+  bottom: "label"
+  top: "predict_loss"
+  loss_weight: 1
+  softmax_cross_entropy_loss_param {
+    weights: 1
+    weights: 1
+    weights: 1
+    zero_channel: -1
+  }
+}
+layer {
+  name: "precision_recall_loss"
+  type: "PrecisionRecallLoss"
+  bottom: "reshape6"
+  bottom: "label"
+  top: "error_rate"
+  include: { phase: TEST }
+}
