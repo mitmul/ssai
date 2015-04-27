@@ -19,5 +19,8 @@ for dname in sorted(glob.glob('results/*')):
             pre, rec = pre_rec[be_pt]
             recalls.append(rec)
 
-        if len(recalls) == 1:
-            print model_name + ',' + str(iter) + ',' + ','.join([str(r) for r in recalls])
+        if len(recalls) == 3:
+            msg = model_name + ','
+            msg += str(iter) + ','
+            msg += ','.join([str(r) for r in recalls])
+            print msg

@@ -65,7 +65,7 @@ def save_loss_curve(dname, fname='caffe.INFO'):
     plt.subplot(2, 1, 1)
     title = '%s\nmin training loss:%f (%d)\n' % (
         os.path.basename(dname), min_t, pos_t)
-    title += 'min test loss:%f (%d)\n' % (min_l, pos_l)
+    title += 'min valid loss:%f (%d)\n' % (min_l, pos_l)
     title += 'min error: %f (%d)' % (min_e, pos_e)
     plt.title(title)
     plt.xlabel('iteration')
