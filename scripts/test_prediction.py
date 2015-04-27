@@ -14,6 +14,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--model', '-m', type=str)
 parser.add_argument('--weight', '-w', type=str)
 parser.add_argument('--img_dir', '-d', type=str)
+parser.add_argument('--channel', '-c', type=int, default=3)
 args = parser.parse_args()
 print args
 
@@ -97,7 +98,7 @@ if __name__ == '__main__':
     net = caffe.Net(model_fn, weight_fn, caffe.TEST)
 
     num = 64
-    l_ch, l_height, l_width = 3, 16, 16
+    l_ch, l_height, l_width = args.channel, 16, 16
     d_ch, d_height, d_width = 3, 64, 64
 
     for img_fname in glob.glob('%s/*.tif*' % args.img_dir):

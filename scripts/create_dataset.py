@@ -213,6 +213,22 @@ def create_patches(sat_patch_size, map_patch_size, stride, map_ch,
     map_env.close()
     print 'patches:\t', n_patches
 
+
+def roads_mini(map_dir, sat_dir, out_map_dir, out_sat_dir):
+    if os.path.exists(out_map_dir):
+        shutil.rmtree(out_map_dir)
+    if os.path.exists(out_sat_dir):
+        shutil.rmtree(out_sat_dir)
+    shutil.copytree(map_dir, out_map_dir)
+    shutil.copytree(sat_dir, out_sat_dir)
+    for map_fn in glob.glob('%s/*.tif*' % out_map_dir):
+        base, ext = os.path.splitext(map_fn)
+        png_fn = map_fn.replace(ext, '.png')
+        if os.path.exists(png_fn):
+            os.remove(png_fn)
+        map = cv.imread(map_fn, cv.IMREAD_GRAYSCALE)
+        cv.imwrite(map_fn, np.array(map == 2, dtype=np.uint8) * 255)
+
 if __name__ == '__main__':
     if args.dataset == 'multi':
         create_merged_map()
@@ -224,6 +240,39 @@ if __name__ == '__main__':
         create_single_maps('data/mass_buildings/valid/map')
         create_single_maps('data/mass_buildings/test/map')
         create_single_maps('data/mass_buildings/train/map')
+
+    if args.dataset == 'roads_mini':
+        # road channel of merged dataset
+        roads_mini('data/mass_merged/valid/map',
+                   'data/mass_merged/valid/sat',
+                   'data/mass_roads_mini/valid/map',
+                   'data/mass_roads_mini/valid/sat')
+        roads_mini('data/mass_merged/test/map',
+                   'data/mass_merged/test/sat',
+                   'data/mass_roads_mini/test/map',
+                   'data/mass_roads_mini/test/sat')
+        roads_mini('data/mass_merged/train/map',
+                   'data/mass_merged/train/sat',
+                   'data/mass_roads_mini/train/map',
+                   'data/mass_roads_mini/train/sat')
+        create_single_maps('data/mass_roads_mini/valid/map')
+        create_single_maps('data/mass_roads_mini/test/map')
+        create_single_maps('data/mass_roads_mini/train/map')
+        create_patches(92, 24, 16, 1,
+                       'data/mass_roads_mini/valid/sat',
+                       'data/mass_roads_mini/valid/map',
+                       'data/mass_roads_mini/lmdb/valid_sat',
+                       'data/mass_roads_mini/lmdb/valid_map')
+        create_patches(92, 24, 16, 1,
+                       'data/mass_roads_mini/test/sat',
+                       'data/mass_roads_mini/test/map',
+                       'data/mass_roads_mini/lmdb/test_sat',
+                       'data/mass_roads_mini/lmdb/test_map')
+        create_patches(92, 24, 16, 1,
+                       'data/mass_roads_mini/train/sat',
+                       'data/mass_roads_mini/train/map',
+                       'data/mass_roads_mini/lmdb/train_sat',
+                       'data/mass_roads_mini/lmdb/train_map')
 
     if args.dataset == 'roads':
         create_patches(92, 24, 16, 1,
