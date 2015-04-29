@@ -23,4 +23,5 @@ for dname in sorted(glob.glob('results/*')):
             msg = model_name + ','
             msg += str(iter) + ','
             msg += ','.join([str(r) for r in recalls])
+            msg += ',' + str(np.mean(recalls[1:]))
             print msg
