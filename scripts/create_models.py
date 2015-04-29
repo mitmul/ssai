@@ -175,6 +175,39 @@ layer {{
 }}'''.format(crop_size=crop_size, number=number)
 
 
+def patch_transformer_predict_layer(number, bottom):
+    return '''layer {{
+  name: "patch_transformer{number}"
+  type: "PatchTransformer"
+  bottom: "input_data"
+  top: "patch_transformer{number}"
+  patch_transformer_param {{
+    # common
+    rotate: true
+    # data
+    crop_size: {crop_size}
+    binarize: false
+    mean_normalize: true
+    stddev_normalize: true
+  }}
+  include: {{ phase: TRAIN }}
+}}
+layer {{
+  name: "patch_transformer{number}"
+  type: "PatchTransformer"
+  bottom: "input_data"
+  top: "patch_transformer{number}"
+  patch_transformer_param {{
+    # data
+    crop_size: {crop_size}
+    binarize: false
+    mean_normalize: true
+    stddev_normalize: true
+  }}
+  include: {{ phase: TEST }}
+}}'''.format(crop_size=crop_size, number=number)
+
+
 def conv_layer(number, bottom, num_output, kernel_size, stride, pad=0):
     return '''layer {{
   name: "conv{number}"
@@ -541,7 +574,7 @@ if __name__ == '__main__':
         # save prototxt for predict
         fp = open('models/%s/predict.prototxt' % model_name, 'w')
         print >> fp, 'name: "%s"' % model_name
-        print >> fp, 'input: "data"'
+        print >> fp, 'input: "input_data"'
         print >> fp, 'input_dim: 64'
         print >> fp, 'input_dim: 3'
         print >> fp, 'input_dim: %d' % crop_size
@@ -551,7 +584,6 @@ if __name__ == '__main__':
                 continue
             elif layer[0] == 'solver':
                 continue
-
             bottom = 'data'
             if i > 1:
                 bottom = '%s%d' % (architecture[i - 1][0], i - 1)
@@ -568,11 +600,14 @@ if __name__ == '__main__':
                 if layer[0] == 'augment':
                     print >> fp, globals()['predict_%s_layer' % layer[0]](
                         i, bottom)
+                elif layer[0] == 'patch_transformer':
+                    print >> fp, globals()['%s_predict_layer' % layer[0]](i, bottom)
                 else:
                     print >> fp, globals()['%s_layer' % layer[0]](i, bottom)
         fp.close()
 
         subprocess.check_output(
-            ['python', '%s/Libraries/caffe/python/draw_net.py' % home_dir,
+            #['python', '%s/Libraries/caffe/python/draw_net.py' % home_dir,
+            ['python', '%s/Downloads/caffe_dev_mitmul/caffe_ssai/python/draw_net.py' % home_dir,
              'models/%s/train_test.prototxt' % model_name,
              'models/%s/net.png' % model_name])
