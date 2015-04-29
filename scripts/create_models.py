@@ -183,28 +183,13 @@ def patch_transformer_predict_layer(number, bottom):
   top: "patch_transformer{number}"
   patch_transformer_param {{
     # common
-    rotate: true
+    rotate: false
     # data
     crop_size: {crop_size}
     binarize: false
     mean_normalize: true
     stddev_normalize: true
   }}
-  include: {{ phase: TRAIN }}
-}}
-layer {{
-  name: "patch_transformer{number}"
-  type: "PatchTransformer"
-  bottom: "input_data"
-  top: "patch_transformer{number}"
-  patch_transformer_param {{
-    # data
-    crop_size: {crop_size}
-    binarize: false
-    mean_normalize: true
-    stddev_normalize: true
-  }}
-  include: {{ phase: TEST }}
 }}'''.format(crop_size=crop_size, number=number)
 
 
