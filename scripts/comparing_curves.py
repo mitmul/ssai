@@ -1,16 +1,12 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import numpy as np
 import matplotlib.pyplot as plt
-
-
-models = [
-    ['VGG_PReLU_2015-04-21_09-52-02_2', 150000],
-    ['VGG_2015-04-27_02-18-32', 50000],
-    ['Mnih_CNN_Asym_Zero_2015-04-24_12-12-51', 2000000],
-    ['Mnih_CNN_2015-04-23_08-07-50', 1500000],
-    ['Mnih_CNN_Asym_2015-04-24_12-12-55', 1500000],
-    ['Mnih_CNN_Zero_2015-04-24_12-12-49', 1000000],
-    ['Mnih_CNN_Euclid_2015-04-10_06-28-31', 2000000]
-]
+import glob
+import os
+import re
+import pandas as pd
 
 
 def breakeven(pre_rec):
@@ -22,25 +18,87 @@ def breakeven(pre_rec):
     return pre, rec
 
 
-def compare_channel(ch):
-    plt.ylim([0.65, 1.0])
-    plt.xlim([0.65, 1.0])
+def draw_curve(model_name, pre_rec, rec):
+    plt.plot(pre_rec[:, 0], pre_rec[:, 1],
+             label='%s(%.3f)' % (model_name, rec))
+
+
+def get_model_name_eval_dir(model, n_iter):
+    model_name = re.search(
+        ur'([^0-9]+)_', os.path.basename(model)).groups()[0]
+    dname = '%s/prediction_%d/evaluation_%d' % (model, n_iter, n_iter)
+
+    return model_name, dname
+
+
+def compare_channel(data, lbound):
+    plt.figure(data.ix['channel_in_img', 0])
+    plt.ylim([lbound, 1.0])
+    plt.xlim([lbound, 1.0])
     plt.plot(np.arange(0, 1.1, 0.1), np.arange(0, 1.1, 0.1), 'k--')
-    for model, iter in models:
-        model_name = model.split('_2015')[0]
-        dname = 'results/%s' % model
-        dname += '/prediction_%d' % iter
-        dname += '/evaluation_%d' % iter
-
-        pre_rec = np.load('%s/pre_rec_%d.npy' % (dname, ch))
-        pre, rec = breakeven(pre_rec)
-        plt.plot(pre_rec[:, 0], pre_rec[:, 1],
-                 label='%s(%.3f)' % (model_name, rec))
-
-        print model_name, pre, rec
-
+    for i in data:
+        draw_curve(data.ix['model_name', i],
+                   data.ix['pre_rec', i],
+                   data.ix['rec', i])
+        # print data.ix['model_name', i],
+        # print data.ix['channel_in_img', i],
+        # print data.ix['rec', i]
     plt.legend(loc='lower left')
-    plt.savefig('comparing_%d.pdf' % ch, dpi=300, bbox_inches='tight')
+    plt.savefig('comparing_%d.pdf' % data.ix['channel_in_img', 0],
+                dpi=300, bbox_inches='tight')
 
-compare_channel(1)
-compare_channel(2)
+if __name__ == '__main__':
+    index = ['model_name',
+             'model_dir',
+             'channel_in_fn',
+             'channel_in_img',
+             'n_iter',
+             'pre',
+             'rec',
+             'pre_rec']
+    data = pd.DataFrame(index=index)
+    for model_dir in glob.glob('results/*'):
+        if not os.path.isdir(model_dir):
+            continue
+        for eval_dir in glob.glob('%s/prediction_*' % model_dir):
+            n_iter = int(re.search(ur'_([0-9]+)$', eval_dir).groups()[0])
+            model_name, eval_dir = get_model_name_eval_dir(model_dir, n_iter)
+
+            for i in range(3):
+                npy_fn = '%s/pre_rec_%d.npy' % (eval_dir, i)
+                if not os.path.exists(npy_fn):
+                    continue
+                pre_rec = np.load(npy_fn)
+                pre, rec = breakeven(pre_rec)
+                channel_in_fn = i
+                channel_in_img = i
+                if 'Building' in model_dir:
+                    channel_in_fn = 0
+                    channel_in_img = 1
+                if 'Road' in model_dir:
+                    channel_in_fn = 0
+                    channel_in_img = 2
+                data['%s-%d(%d)' % (model_name, channel_in_img, n_iter)] = \
+                    pd.Series([model_name,
+                               model_dir,
+                               channel_in_fn,
+                               channel_in_img,
+                               n_iter,
+                               pre,
+                               rec,
+                               pre_rec],
+                              index=index)
+    data.to_pickle('result.pkl')
+
+    for i, lbound in zip(range(3), [0.965, 0.8, 0.65]):
+        ch_df = data.ix[:, data.ix['channel_in_img', :] == i]
+        model_dirs = ch_df.ix['model_dir', :].unique()
+
+        models = pd.DataFrame(index=index)
+        for model_dir in model_dirs:
+            df_m = ch_df.ix[:, ch_df.ix['model_dir', :] == model_dir]
+            df_m = df_m.ix[:, df_m.ix['rec', :].argmax()]
+            models[df_m.ix['model_name']] = df_m
+
+        models = models.T.sort('rec').T
+        compare_channel(models, lbound)
