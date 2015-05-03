@@ -19,7 +19,7 @@ args = parser.parse_args()
 print args
 
 caffe.set_mode_gpu()
-caffe.set_device(0)
+caffe.set_device(8)
 
 
 def get_predict(ortho, net, num,

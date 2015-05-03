@@ -1,4 +1,4 @@
-Semantic Segmentation of Aerial Imagery
+Semantic Segmentation for Aerial Imagery
 ========================================
 
 Extract building and road from aerial imagery

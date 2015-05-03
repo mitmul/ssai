@@ -1,11 +1,14 @@
 *.jpg
 *.png
+*.pdf
 *.tif
 *.tiff
 *.tmp
 *.out
 *.tar
 *.gz
+*.csv
+*.pkl
 
 data
 lib/build
@@ -15,8 +18,12 @@ config.json
 scripts/build
 scripts/server_util.py
 scripts/correct_results.py
+scripts/collect_results.py
+shells/validation.sh
 models
 models_
 
 .DS_Store
 sftp-config.json
+.settings
+deployment-config.json
