@@ -20,7 +20,7 @@ def breakeven(pre_rec):
 
 def draw_curve(model_name, pre_rec, rec):
     plt.plot(pre_rec[:, 0], pre_rec[:, 1],
-             label='%s(%.3f)' % (model_name, rec))
+             label='%s' % (model_name))
 
 
 def get_model_name_eval_dir(model, n_iter):
@@ -40,9 +40,8 @@ def compare_channel(data, lbound):
         draw_curve(data.ix['model_name', i],
                    data.ix['pre_rec', i],
                    data.ix['rec', i])
-        # print data.ix['model_name', i],
-        # print data.ix['channel_in_img', i],
-        # print data.ix['rec', i]
+        print data.ix['model_name', i],
+        print data.ix['n_iter', i]
     plt.legend(loc='lower left')
     plt.savefig('comparing_%d.pdf' % data.ix['channel_in_img', 0],
                 dpi=300, bbox_inches='tight')
@@ -95,9 +94,17 @@ if __name__ == '__main__':
         model_dirs = ch_df.ix['model_dir', :].unique()
 
         models = pd.DataFrame(index=index)
+
+        # select cols that have maximum accuracy
+        # for model_dir in model_dirs:
+        #     df_m = ch_df.ix[:, ch_df.ix['model_dir', :] == model_dir]
+        #     df_m = df_m.ix[:, df_m.ix['rec', :].argmax()]
+        #     models[df_m.ix['model_name']] = df_m
+
+        # select max n_iter
         for model_dir in model_dirs:
             df_m = ch_df.ix[:, ch_df.ix['model_dir', :] == model_dir]
-            df_m = df_m.ix[:, df_m.ix['rec', :].argmax()]
+            df_m = df_m.ix[:, df_m.ix['n_iter', :].argmax()]
             models[df_m.ix['model_name']] = df_m
 
         models = models.T.sort('rec').T
