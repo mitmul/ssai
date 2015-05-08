@@ -9,6 +9,7 @@
 *.gz
 *.csv
 *.pkl
+*.ipynb
 
 data
 lib/build
@@ -22,6 +23,7 @@ scripts/collect_results.py
 shells/validation.sh
 models
 models_
+weights
 
 .DS_Store
 sftp-config.json
