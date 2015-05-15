@@ -353,6 +353,16 @@ def prelu_layer(number, bottom):
              bottom=bottom)
 
 
+def sigmoid_layer(number, bottom):
+    return '''layer {{
+  name: "sigmoid{number}"
+  type: "Sigmoid"
+  bottom: "{bottom}"
+  top: "sigmoid{number}"
+}}'''.format(number=number,
+             bottom=bottom)
+
+
 def dropout_layer(number, bottom):
     return '''layer {{
   name: "dropout{number}"
@@ -586,7 +596,8 @@ if __name__ == '__main__':
                     print >> fp, globals()['predict_%s_layer' % layer[0]](
                         i, bottom)
                 elif layer[0] == 'patch_transformer':
-                    print >> fp, globals()['%s_predict_layer' % layer[0]](i, bottom)
+                    print >> fp, globals()['%s_predict_layer' % layer[0]](
+                        i, bottom)
                 else:
                     print >> fp, globals()['%s_layer' % layer[0]](i, bottom)
         fp.close()
