@@ -24,6 +24,7 @@ set(inc_dirs
     $ENV{HOME}/anaconda/include
 )
 set(lib_dirs
+    /usr/local/lib
     $ENV{HOME}/Libraries/caffe/build/lib
     $ENV{HOME}/anaconda/lib
     $ENV{HOME}/Libraries/opencv-2.4.10/install/lib
