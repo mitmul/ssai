@@ -512,7 +512,7 @@ def solver(
         max_iter, device_id, random_seed=1701):
     return '''net: "train_test.prototxt"
 test_iter: 100
-test_interval: 10000
+test_interval: 1000
 
 solver_type: SGD
 base_lr: {base_lr}
