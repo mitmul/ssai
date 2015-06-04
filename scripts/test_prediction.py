@@ -10,17 +10,6 @@ import caffe
 import argparse
 import os
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--model', '-m', type=str)
-parser.add_argument('--weight', '-w', type=str)
-parser.add_argument('--img_dir', '-d', type=str)
-parser.add_argument('--channel', '-c', type=int, default=3)
-args = parser.parse_args()
-print args
-
-caffe.set_mode_gpu()
-caffe.set_device(8)
-
 
 def get_predict(ortho, net, num,
                 l_ch, l_height, l_width,
@@ -86,6 +75,17 @@ def get_predict(ortho, net, num,
     return pred_img, ortho_img
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--model', '-m', type=str)
+    parser.add_argument('--weight', '-w', type=str)
+    parser.add_argument('--img_dir', '-d', type=str)
+    parser.add_argument('--channel', '-c', type=int, default=3)
+    args = parser.parse_args()
+    print args
+
+    caffe.set_mode_gpu()
+    caffe.set_device(0)
+
     model_fn = args.model
     weight_fn = args.weight
     n_iter = int(weight_fn.split('_')[-1].split('.')[0])

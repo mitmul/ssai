@@ -24,6 +24,8 @@ shells/validation.sh
 models
 models_
 weights
+experiment_*
+memo
 
 .DS_Store
 sftp-config.json
