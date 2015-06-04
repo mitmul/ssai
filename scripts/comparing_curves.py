@@ -89,7 +89,7 @@ if __name__ == '__main__':
                               index=index)
     data.to_pickle('result.pkl')
 
-    for i, lbound in zip(range(3), [0.965, 0.8, 0.65]):
+    for i, lbound in zip(range(3), [0.965, 0.85, 0.7]):
         ch_df = data.ix[:, data.ix['channel_in_img', :] == i]
         model_dirs = ch_df.ix['model_dir', :].unique()
 

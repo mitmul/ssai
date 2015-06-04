@@ -57,8 +57,8 @@ for model_dir in glob.glob('results/*'):
         if n_iter % 100000 == 0:
             dname = os.path.dirname(snapshot_fn)
             pred_dname = '%s/prediction_%d' % (model_dir, n_iter)
-            if os.path.exists(pred_dname):
-                continue
+            # if os.path.exists(pred_dname):
+            # continue
 
             if 'Buildings_2015' in model_dir:
                 channel = 1
@@ -68,7 +68,7 @@ for model_dir in glob.glob('results/*'):
                 channel = 1
                 test_sat_dir = get_sat_dir('roads')
                 test_map_dir = get_map_dir('roads')
-            elif 'Roads_Mini_2015' in model_dir:
+            elif 'Roads-Mini_2015' in model_dir:
                 channel = 1
                 test_sat_dir = get_sat_dir('roads')
                 test_map_dir = get_map_dir('roads')

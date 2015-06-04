@@ -14,7 +14,7 @@
     ["fc", [768]],
     ["reshape", [3, 16, 16]],
     ["loss", ["softmax", 1, [1, 1, 1], -1]],
-    ["solver", [0.0005, 0.1, 100000, 500000]]
+    ["solver", [0.0005, 0.1, 100000, 500000, 0]]
   ],
   "Mnih_CNN_S_Maxout_Merged": [
     ["data", ["merged"]],
@@ -32,7 +32,7 @@
     ["fc", [768]],
     ["reshape", [3, 16, 16]],
     ["loss", ["softmax", 1, [1, 1, 1], -1]],
-    ["solver", [0.0005, 1.0, 10000, 2000000]]
+    ["solver", [0.0005, 1.0, 10000, 2000000, 0]]
   ],
   "Mnih_CNN_Buildings": [
     ["data", ["buildings"]],
@@ -49,7 +49,7 @@
     ["fc", [256]],
     ["reshape", [1, 16, 16]],
     ["loss", ["sigmoid"]],
-    ["solver", [0.0005, 0.1, 100000, 500000]]
+    ["solver", [0.0005, 0.1, 100000, 500000, 2]]
   ],
   "Mnih_CNN_Roads": [
     ["data", ["roads"]],
@@ -66,7 +66,7 @@
     ["fc", [256]],
     ["reshape", [1, 16, 16]],
     ["loss", ["sigmoid"]],
-    ["solver", [0.0005, 0.1, 100000, 500000]]
+    ["solver", [0.0005, 0.1, 100000, 500000, 3]]
   ],
   "Mnih_CNN_Roads-Mini": [
     ["data", ["roads_mini"]],
@@ -83,7 +83,25 @@
     ["fc", [256]],
     ["reshape", [1, 16, 16]],
     ["loss", ["sigmoid"]],
-    ["solver", [0.0005, 0.1, 100000, 500000]]
+    ["solver", [0.0005, 0.1, 100000, 500000, 4]]
+  ],
+  "Mnih_CNN_Zero_Sigmoid_Merged": [
+    ["data", ["merged"]],
+    ["patch_transformer"],
+    ["conv", [64, 16, 4]],
+    ["relu"],
+    ["pool", [2, 1]],
+    ["conv", [112, 4, 1]],
+    ["relu"],
+    ["conv", [80, 3, 1]],
+    ["relu"],
+    ["fc", [4096]],
+    ["relu"],
+    ["fc", [768]],
+    ["sigmoid"],
+    ["reshape", [3, 16, 16]],
+    ["loss", ["softmax", 1, [1, 1, 1], 0]],
+    ["solver", [0.0005, 0.1, 100000, 500000, 5]]
   ],
   "Mnih_CNN_Zero_Merged": [
     ["data", ["merged"]],
@@ -99,9 +117,8 @@
     ["relu"],
     ["fc", [768]],
     ["reshape", [3, 16, 16]],
-    ["sigmoid"],
     ["loss", ["softmax", 1, [1, 1, 1], 0]],
-    ["solver", [0.0005, 0.1, 100000, 500000]]
+    ["solver", [0.0005, 0.1, 100000, 500000, 5]]
   ],
   "Mnih_CNN_Asym_Merged": [
     ["data", ["merged"]],
@@ -118,9 +135,27 @@
     ["fc", [768]],
     ["reshape", [3, 16, 16]],
     ["loss", ["softmax", 1, [0, 1, 1], -1]],
-    ["solver", [0.0005, 0.1, 100000, 500000]]
+    ["solver", [0.0005, 0.1, 100000, 500000, 6]]
   ],
-  "Mnih_CNN_Asym_Zero_Merged": [
+  "Mnih_CNN_Zero_Sigmoid_Asym_Merged": [
+    ["data", ["merged"]],
+    ["patch_transformer"],
+    ["conv", [64, 16, 4]],
+    ["relu"],
+    ["pool", [2, 1]],
+    ["conv", [112, 4, 1]],
+    ["relu"],
+    ["conv", [80, 3, 1]],
+    ["relu"],
+    ["fc", [4096]],
+    ["relu"],
+    ["fc", [768]],
+    ["sigmoid"],
+    ["reshape", [3, 16, 16]],
+    ["loss", ["softmax", 1, [0, 1, 1], 0]],
+    ["solver", [0.0005, 0.1, 100000, 500000, 7]]
+  ],
+  "Mnih_CNN_Zero_Asym_Merged": [
     ["data", ["merged"]],
     ["patch_transformer"],
     ["conv", [64, 16, 4]],
@@ -134,9 +169,8 @@
     ["relu"],
     ["fc", [768]],
     ["reshape", [3, 16, 16]],
-    ["sigmoid"],
     ["loss", ["softmax", 1, [0, 1, 1], 0]],
-    ["solver", [0.0005, 0.1, 100000, 500000]]
+    ["solver", [0.0005, 0.1, 100000, 500000, 7]]
   ],
   "VGG_PReLU_Merged": [
     ["data", ["merged"]],
@@ -181,7 +215,7 @@
     ["fc", [768]],
     ["reshape", [3, 16, 16]],
     ["loss", ["softmax", 1, [1, 1, 1], -1]],
-    ["solver", [0.0005, 0.1, 100000, 500000]]
+    ["solver", [0.0005, 0.1, 100000, 500000, 0]]
   ],
   "VGG_Merged": [
     ["data", ["merged"]],
@@ -226,7 +260,7 @@
     ["fc", [768]],
     ["reshape", [3, 16, 16]],
     ["loss", ["softmax", 1, [1, 1, 1], -1]],
-    ["solver", [0.0005, 0.1, 100000, 500000]]
+    ["solver", [0.0005, 0.1, 100000, 500000, 0]]
   ],
   "VGG_PReLU_Buildings": [
     ["data", ["buildings"]],
@@ -271,7 +305,7 @@
     ["fc", [256]],
     ["reshape", [1, 16, 16]],
     ["loss", ["sigmoid"]],
-    ["solver", [0.0005, 0.1, 100000, 500000]]
+    ["solver", [0.0005, 0.1, 100000, 500000, 0]]
   ],
   "VGG_PReLU_Roads": [
     ["data", ["roads"]],
@@ -316,7 +350,7 @@
     ["fc", [256]],
     ["reshape", [1, 16, 16]],
     ["loss", ["sigmoid"]],
-    ["solver", [0.0005, 0.1, 100000, 500000]]
+    ["solver", [0.0005, 0.1, 100000, 500000, 0]]
   ],
   "VGG_PReLU_Roads-Mini": [
     ["data", ["roads_mini"]],
@@ -361,6 +395,6 @@
     ["fc", [256]],
     ["reshape", [1, 16, 16]],
     ["loss", ["sigmoid"]],
-    ["solver", [0.0005, 0.1, 100000, 500000]]
+    ["solver", [0.0005, 0.1, 100000, 500000, 0]]
   ]
 }
