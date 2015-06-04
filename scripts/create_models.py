@@ -507,7 +507,9 @@ def predict_layer(number, bottom, loss_type):
              bottom=bottom)
 
 
-def solver(model_name, base_lr, gamma, stepsize, max_iter, device_id):
+def solver(
+        model_name, base_lr, gamma, stepsize,
+        max_iter, device_id, random_seed=1701):
     return '''net: "train_test.prototxt"
 test_iter: 100
 test_interval: 10000
@@ -529,13 +531,14 @@ snapshot_prefix: "snapshots/{model_name}"
 solver_mode: GPU
 device_id: {device_id}
 
-random_seed: 1501
+random_seed: {random_seed}
 '''.format(model_name=model_name,
            base_lr=base_lr,
            gamma=gamma,
            stepsize=stepsize,
            max_iter=max_iter,
-           device_id=device_id)
+           device_id=device_id,
+           random_seed=random_seed)
 
 if __name__ == '__main__':
     if not os.path.exists('models/'):
