@@ -85,25 +85,7 @@
     ["loss", ["sigmoid"]],
     ["solver", [0.0005, 0.1, 100000, 500000, 4]]
   ],
-  "Mnih_CNN_Zero_Sigmoid_Merged": [
-    ["data", ["merged"]],
-    ["patch_transformer"],
-    ["conv", [64, 16, 4]],
-    ["relu"],
-    ["pool", [2, 1]],
-    ["conv", [112, 4, 1]],
-    ["relu"],
-    ["conv", [80, 3, 1]],
-    ["relu"],
-    ["fc", [4096]],
-    ["relu"],
-    ["fc", [768]],
-    ["sigmoid"],
-    ["reshape", [3, 16, 16]],
-    ["loss", ["softmax", 1, [1, 1, 1], 0]],
-    ["solver", [0.0005, 0.1, 100000, 500000, 5]]
-  ],
-  "Mnih_CNN_Zero_Merged": [
+  "Mnih_CNN_GU_Merged": [
     ["data", ["merged"]],
     ["patch_transformer"],
     ["conv", [64, 16, 4]],
@@ -120,7 +102,7 @@
     ["loss", ["softmax", 1, [1, 1, 1], 0]],
     ["solver", [0.0005, 0.1, 100000, 500000, 5]]
   ],
-  "Mnih_CNN_Asym_Merged": [
+  "Mnih_CNN_IL_Merged": [
     ["data", ["merged"]],
     ["patch_transformer"],
     ["conv", [64, 16, 4]],
@@ -136,41 +118,6 @@
     ["reshape", [3, 16, 16]],
     ["loss", ["softmax", 1, [0, 1, 1], -1]],
     ["solver", [0.0005, 0.1, 100000, 500000, 6]]
-  ],
-  "Mnih_CNN_Zero_Sigmoid_Asym_Merged": [
-    ["data", ["merged"]],
-    ["patch_transformer"],
-    ["conv", [64, 16, 4]],
-    ["relu"],
-    ["pool", [2, 1]],
-    ["conv", [112, 4, 1]],
-    ["relu"],
-    ["conv", [80, 3, 1]],
-    ["relu"],
-    ["fc", [4096]],
-    ["relu"],
-    ["fc", [768]],
-    ["sigmoid"],
-    ["reshape", [3, 16, 16]],
-    ["loss", ["softmax", 1, [0, 1, 1], 0]],
-    ["solver", [0.0005, 0.1, 100000, 500000, 7]]
-  ],
-  "Mnih_CNN_Zero_Asym_Merged": [
-    ["data", ["merged"]],
-    ["patch_transformer"],
-    ["conv", [64, 16, 4]],
-    ["relu"],
-    ["pool", [2, 1]],
-    ["conv", [112, 4, 1]],
-    ["relu"],
-    ["conv", [80, 3, 1]],
-    ["relu"],
-    ["fc", [4096]],
-    ["relu"],
-    ["fc", [768]],
-    ["reshape", [3, 16, 16]],
-    ["loss", ["softmax", 1, [0, 1, 1], 0]],
-    ["solver", [0.0005, 0.1, 100000, 500000, 7]]
   ],
   "VGG_PReLU_Merged": [
     ["data", ["merged"]],
