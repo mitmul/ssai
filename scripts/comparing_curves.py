@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys
+import matplotlib
+if 'linux' in sys.platform:
+    matplotlib.use('Agg')
 import numpy as np
 import matplotlib.pyplot as plt
 import glob
@@ -42,6 +46,12 @@ def compare_channel(data, lbound):
                    data.ix['rec', i])
         print data.ix['model_name', i],
         print data.ix['n_iter', i]
+
+    # Mnih's models for building
+    if data.ix['channel_in_img', 0] == 1:
+        plt.scatter([0.9150], [0.9150], 'x')
+        plt.scatter([0.9211], [0.9211], 'x')
+        plt.scatter([0.9203], [0.9203], 'x')
     plt.legend(loc='lower left')
     plt.savefig('comparing_%d.pdf' % data.ix['channel_in_img', 0],
                 dpi=300, bbox_inches='tight')
@@ -58,6 +68,8 @@ if __name__ == '__main__':
     data = pd.DataFrame(index=index)
     for model_dir in glob.glob('results/*'):
         if not os.path.isdir(model_dir):
+            continue
+        if 'Buildings' in model_dir:
             continue
         for eval_dir in glob.glob('%s/prediction_*' % model_dir):
             n_iter = int(re.search(ur'_([0-9]+)$', eval_dir).groups()[0])
@@ -89,7 +101,7 @@ if __name__ == '__main__':
                               index=index)
     data.to_pickle('result.pkl')
 
-    for i, lbound in zip(range(3), [0.965, 0.85, 0.7]):
+    for i, lbound in zip(range(3), [0.975, 0.85, 0.7]):
         ch_df = data.ix[:, data.ix['channel_in_img', :] == i]
         model_dirs = ch_df.ix['model_dir', :].unique()
 

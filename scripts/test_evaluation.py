@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import re
 import sys
 import matplotlib
 matplotlib.use('Agg')
 sys.path.append('lib/build')
 sys.path.append('../../lib/build')
+sys.path.append('../../../lib/build')
 import matplotlib.pyplot as plt
 from ssai import relax_precision, relax_recall
 import cv2 as cv
@@ -22,13 +24,15 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--map_dir', '-i', type=str)
 parser.add_argument('--result_dir', '-d', type=str)
 parser.add_argument('--channel', '-c', type=int, default=3)
+parser.add_argument('--offset', '-o', type=int, default=0)
+parser.add_argument('--pad', '-p', type=int, default=24)  # (64 / 2) - (16 / 2)
 args = parser.parse_args()
 print args
 
 ch = args.channel
 steps = 256
 relax = 3
-pad = 24
+pad = args.pad
 n_thread = 8
 
 result_dir = args.result_dir
@@ -74,6 +78,7 @@ def get_pre_rec(positive, prec_tp, true, recall_tp, steps):
     pre_rec = np.asarray(pre_rec)
     breakeven = np.asarray(breakeven)
     breakeven_pt = np.abs(breakeven[:, 0] - breakeven[:, 1]).argmin()
+    breakeven_pt = breakeven[breakeven_pt]
 
     return pre_rec, breakeven_pt
 
@@ -81,8 +86,8 @@ def get_pre_rec(positive, prec_tp, true, recall_tp, steps):
 def draw_pre_rec_curve(pre_rec, breakeven_pt):
     plt.clf()
     plt.plot(pre_rec[:, 0], pre_rec[:, 1])
-    plt.plot(pre_rec[breakeven_pt, 0], pre_rec[breakeven_pt, 1],
-             'x', label='breakeven recall: %f' % (pre_rec[breakeven_pt, 1]))
+    plt.plot(breakeven_pt[0], breakeven_pt[1],
+             'x', label='breakeven recall: %f' % (breakeven_pt[1]))
     plt.ylabel('recall')
     plt.xlabel('precision')
     plt.ylim([0.0, 1.1])
@@ -97,14 +102,21 @@ def worker_thread(result_fn_queue):
         if result_fn is None:
             break
 
-        img_id = basename(result_fn).split('pred_')[-1].split('.tiff')[0]
+        img_id = basename(result_fn).split('pred_')[-1]
+        img_id, _ = os.path.splitext(img_id)
+        if '.' in img_id:
+            img_id = img_id.split('.')[0]
+        if len(re.findall(ur'_', img_id)) > 1:
+            img_id = '_'.join(img_id.split('_')[1:])
         out_dir = '%s/%s' % (eval_dir, img_id)
         makedirs(out_dir)
+        print img_id
 
         label = cv.imread('%s/%s.tif' %
                           (label_dir, img_id), cv.IMREAD_GRAYSCALE)
         pred = np.load(result_fn)
-        label = label[pad:pad + pred.shape[0], pad:pad + pred.shape[1]]
+        label = label[pad + args.offset:pad + args.offset + pred.shape[0],
+                      pad + args.offset:pad + args.offset + pred.shape[1]]
         cv.imwrite('%s/label_%s.png' % (out_dir, img_id), label * 125)
 
         print 'pred_shape:', pred.shape
@@ -137,7 +149,7 @@ def worker_thread(result_fn_queue):
             np.save('%s/pre_rec_%d' % (out_dir, c), pre_rec)
             cv.imwrite('%s/pred_%d.png' % (out_dir, c), pred[:, :, c] * 255)
 
-            print img_id, c, pre_rec[breakeven_pt]
+            print img_id, c, breakeven_pt
     print 'thread finished'
 
 
@@ -163,4 +175,4 @@ if __name__ == '__main__':
         plt.savefig('%s/pr_curve_%d.png' % (eval_dir, c))
         np.save('%s/pre_rec_%d' % (eval_dir, c), pre_rec)
 
-        print pre_rec[breakeven_pt]
+        print breakeven_pt

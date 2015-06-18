@@ -13,19 +13,19 @@ import os
 
 def get_predict(ortho, net, num,
                 l_ch, l_height, l_width,
-                d_ch, d_height, d_width):
+                d_ch, d_height, d_width, offset=0):
     h_limit = ortho.shape[0]
     w_limit = ortho.shape[1]
 
     # create input, label patches
     rects = []  # input data region
     o_patches = []
-    l_patches = []
-    for y in range(0, h_limit, l_height):
-        for x in range(0, w_limit, l_width):
+    for y in range(offset, h_limit, l_height):
+        for x in range(offset, w_limit, l_width):
             if (y + d_height > h_limit) or (x + d_width > w_limit):
                 break
-            rects.append((y, x, y + d_height, x + d_width))
+            rects.append((y - offset, x - offset,
+                          y - offset + d_height, x - offset + d_width))
 
             # ortho patch
             o_patch = ortho[y:y + d_height, x:x + d_width, :]
@@ -33,7 +33,6 @@ def get_predict(ortho, net, num,
             o_patches.append(o_patch)
 
     o_patches = np.asarray(o_patches, dtype=np.float32)
-    l_patches = np.asarray(l_patches, dtype=np.int32)
 
     # the number of patches
     n_patches = len(o_patches)
@@ -69,8 +68,8 @@ def get_predict(ortho, net, num,
     out_w = pred_img.shape[1] - (d_width - l_width)
     pred_img = pred_img[d_height / 2 - l_height / 2:out_h,
                         d_width / 2 - l_width / 2:out_w, :]
-    ortho_img = ortho[d_height / 2 - l_height / 2:out_h,
-                      d_width / 2 - l_width / 2:out_w, :]
+    ortho_img = ortho[d_height / 2 - l_height / 2 + offset:out_h,
+                      d_width / 2 - l_width / 2 + offset:out_w, :]
 
     return pred_img, ortho_img
 
@@ -80,11 +79,13 @@ if __name__ == '__main__':
     parser.add_argument('--weight', '-w', type=str)
     parser.add_argument('--img_dir', '-d', type=str)
     parser.add_argument('--channel', '-c', type=int, default=3)
+    parser.add_argument('--device_id', '-i', type=int, default=0)
+    parser.add_argument('--offset', '-o', type=int, default=0)
     args = parser.parse_args()
     print args
 
     caffe.set_mode_gpu()
-    caffe.set_device(0)
+    caffe.set_device(args.device_id)
 
     model_fn = args.model
     weight_fn = args.weight
@@ -106,13 +107,13 @@ if __name__ == '__main__':
         st = time.time()
         pred_img, ortho_img = get_predict(ortho, net, num,
                                           l_ch, l_height, l_width,
-                                          d_ch, d_height, d_width)
+                                          d_ch, d_height, d_width, args.offset)
         print time.time() - st, 'sec'
-        cv.imwrite('%s/pred_%s.png' % (result_dir, basename(img_fname)),
+        cv.imwrite('%s/pred_%d_%s.png' % (result_dir, args.offset, basename(img_fname)),
                    pred_img * 125)
-        cv.imwrite('%s/ortho_%s.png' % (result_dir, basename(img_fname)),
+        cv.imwrite('%s/ortho_%d_%s.png' % (result_dir, args.offset, basename(img_fname)),
                    ortho_img)
-        np.save('%s/pred_%s' % (result_dir, basename(img_fname)),
+        np.save('%s/pred_%d_%s' % (result_dir, args.offset, basename(img_fname)),
                 pred_img)
 
         print img_fname

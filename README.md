@@ -78,3 +78,12 @@ $ make
 $ cd results/Mnih_CNN_{started date}
 $ python ../../scripts/test_evaluation.py --map_dir ../../data/mass_merged/test/map --result_dir prediction_1000000 --channel 3
 ```
+
+# Model averaging
+
+```
+$ python ../scripts/batch_evaluation.py --offset True
+$ mkdir Mnih_CNN_Merged
+$ cd Mnih_CNN_Merged
+$ python ../../scripts/test_evaluation.py --map_dir ../../data/mass_merged/test/map --result_dir ./prediction_100000 --channel 3 --offset 0 --pad 31
+```

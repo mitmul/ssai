@@ -20,6 +20,7 @@ scripts/build
 scripts/server_util.py
 scripts/correct_results.py
 scripts/collect_results.py
+scripts/create_graph_for_paper.py
 shells/validation.sh
 models
 models_
@@ -31,3 +32,5 @@ memo
 sftp-config.json
 .settings
 deployment-config.json
+.remote-sync.json
+.ftpconfig
