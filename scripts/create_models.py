@@ -607,6 +607,6 @@ if __name__ == '__main__':
         fp.close()
 
         subprocess.check_output(
-            ['python', '%s/Libraries/caffe/python/draw_net.py' % home_dir,
+            ['python', '%s/lib/caffe/build/install/python/draw_net.py' % home_dir,
              'models/%s/train_test.prototxt' % model_name,
              'models/%s/net.png' % model_name])
