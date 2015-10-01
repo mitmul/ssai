@@ -1,41 +1,47 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys
 import re
 import os
 import numpy as np
 import cv2 as cv
 import glob
+import argparse
 from collections import defaultdict
 
-result_dir = 'results/Mnih_CNN_Roads-Mini'
-test_dir = 'data/mass_roads_mini/test/map'
+parser = argparse.ArgumentParser()
+parser.add_argument('--result_dir', type=str,
+                    default='results/Mnih_CNN_GU_Merged')
+parser.add_argument('--map_dir', type=str,
+                    default='data/mass_merged/test/map')
+args = parser.parse_args()
+result_dir = args.result_dir
+test_dir = args.map_dir
 pad = 24
 print result_dir
 get_iter = lambda fn: re.search(ur'prediction_([0-9]+)', fn).groups()[0]
 get_offset = lambda fn: re.search(ur'pred_([0-9]+)_', fn).groups()[0]
-get_img_fn = lambda fn: re.search(ur'pred_[0-9]+_([0-9_]+)\.', fn).groups()[0]
+get_img_fn = lambda fn: re.search(ur'pred_[0-9]+_(Google[0-9]+)\.', fn).groups()[0]
 
 all_predictions = defaultdict(lambda: defaultdict(list))
-for dname in glob.glob('%s/*' % result_dir):
-    if not os.path.isdir(dname):
-        continue
+# for dname in glob.glob('%s/*' % result_dir):
+#     if not os.path.isdir(dname):
+#         continue
 
-    pred_dirs = sorted(glob.glob('%s/prediction_*' % dname))
-    npy_fns = [glob.glob('%s/pred_*.npy' % d) for d in pred_dirs]
+pred_dirs = sorted(glob.glob('%s/prediction_*' % result_dir))
+npy_fns = [glob.glob('%s/pred_*.npy' % d) for d in pred_dirs]
 
-    for fn in npy_fns:
-        for n in fn:
-            n_iter = int(get_iter(n))
-            offset = int(get_offset(n))
-            img_fn = get_img_fn(n)
-            all_predictions[n_iter][img_fn].append({
-                'img_fn': img_fn,
-                'n_iter': n_iter,
-                'offset': offset,
-                'npy_fn': n
-            })
+for fn in npy_fns:
+    for n in fn:
+        n_iter = int(get_iter(n))
+        offset = int(get_offset(n))
+        img_fn = get_img_fn(n)
+        all_predictions[n_iter][img_fn].append({
+            'img_fn': img_fn,
+            'n_iter': n_iter,
+            'offset': offset,
+            'npy_fn': n
+        })
 
 for n_iter, img_fns in all_predictions.items():
     for predictions in img_fns.values():
@@ -54,7 +60,7 @@ for n_iter, img_fns in all_predictions.items():
         out_w = n_models + shape[1] - 2 * (n_models - 1)
         canvas = canvas[n_models - 1:out_h, n_models - 1:out_w, :]
 
-        label_img = cv.imread('%s/%s.tif' % (test_dir, prediction['img_fn']))
+        label_img = cv.imread('%s/%s_0-1.png' % (test_dir, prediction['img_fn']))
         label_img = label_img[pad + n_models - 1:pad + out_h,
                               pad + n_models - 1:pad + out_w, :]
 

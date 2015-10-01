@@ -102,17 +102,13 @@ def worker_thread(result_fn_queue):
         if result_fn is None:
             break
 
-        img_id = basename(result_fn).split('pred_')[-1]
-        img_id, _ = os.path.splitext(img_id)
-        if '.' in img_id:
-            img_id = img_id.split('.')[0]
-        if len(re.findall(ur'_', img_id)) > 1:
-            img_id = '_'.join(img_id.split('_')[1:])
+        img_id = re.search(
+            ur'(Google[0-9]+)', basename(result_fn)).groups()[-1]
         out_dir = '%s/%s' % (eval_dir, img_id)
         makedirs(out_dir)
         print img_id
 
-        label = cv.imread('%s/%s.tif' %
+        label = cv.imread('%s/%s_0-1.png' %
                           (label_dir, img_id), cv.IMREAD_GRAYSCALE)
         pred = np.load(result_fn)
         label = label[pad + args.offset:pad + args.offset + pred.shape[0],

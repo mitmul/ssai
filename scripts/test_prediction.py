@@ -79,6 +79,8 @@ if __name__ == '__main__':
     parser.add_argument('--weight', '-w', type=str)
     parser.add_argument('--img_dir', '-d', type=str)
     parser.add_argument('--channel', '-c', type=int, default=3)
+    parser.add_argument('--out_size', type=int, default=16)
+    parser.add_argument('--in_size', type=int, default=64)
     parser.add_argument('--device_id', '-i', type=int, default=0)
     parser.add_argument('--offset', '-o', type=int, default=0)
     args = parser.parse_args()
@@ -91,7 +93,7 @@ if __name__ == '__main__':
     weight_fn = args.weight
     n_iter = int(weight_fn.split('_')[-1].split('.')[0])
     result_dir = args.model.replace(basename(args.model), '')
-    result_dir += 'prediction_%d' % n_iter
+    result_dir += 'prediction_%d-%d' % (n_iter, args.offset)
     print result_dir
     if not os.path.exists(result_dir):
         os.mkdir(result_dir)
@@ -99,10 +101,10 @@ if __name__ == '__main__':
     net = caffe.Net(model_fn, weight_fn, caffe.TEST)
 
     num = 64
-    l_ch, l_height, l_width = args.channel, 16, 16
-    d_ch, d_height, d_width = 3, 64, 64
+    l_ch, l_height, l_width = args.channel, args.out_size, args.out_size
+    d_ch, d_height, d_width = 3, args.in_size, args.in_size
 
-    for img_fname in glob.glob('%s/*.tif*' % args.img_dir):
+    for img_fname in glob.glob('%s/*.png*' % args.img_dir):
         ortho = cv.imread(img_fname)
         st = time.time()
         pred_img, ortho_img = get_predict(ortho, net, num,

@@ -123,7 +123,7 @@ if __name__ == '__main__':
     # create_single_maps('data/train/map')
     # create_single_maps('data/valid/map')
     # create_single_maps('data/test/map')
-    create_single_maps('data/test_1m/map_1m')
+
     # create_patches(192, 48, 32, 1,
     #                'data/train/sat',
     #                'data/train/map',
@@ -139,9 +139,8 @@ if __name__ == '__main__':
     #                'data/test/map',
     #                'data/test/sat.lmdb',
     #                'data/test/map.lmdb')
-    # create_patches(192, 48, 32, 1,
-    create_patches(96, 24, 16, 1,
-                   'data/test_1m/sat_1m',
-                   'data/test_1m/map_1m',
-                   'data/test_1m/sat_1m.lmdb',
-                   'data/test_1m/map_1m.lmdb')
+    create_patches(192, 48, 32, 1,
+                   'data/trainval/sat',
+                   'data/trainval/map',
+                   'data/trainval/sat.lmdb',
+                   'data/trainval/map.lmdb')
