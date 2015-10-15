@@ -123,6 +123,7 @@ if __name__ == '__main__':
     # create_single_maps('data/train/map')
     # create_single_maps('data/valid/map')
     # create_single_maps('data/test/map')
+    create_single_maps('data/trainval/map')
 
     # create_patches(192, 48, 32, 1,
     #                'data/train/sat',

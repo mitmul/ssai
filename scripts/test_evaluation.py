@@ -23,15 +23,15 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--map_dir', '-i', type=str)
 parser.add_argument('--result_dir', '-d', type=str)
-parser.add_argument('--channel', '-c', type=int, default=3)
+parser.add_argument('--channel', '-c', type=int, default=1)
 parser.add_argument('--offset', '-o', type=int, default=0)
-parser.add_argument('--pad', '-p', type=int, default=24)  # (64 / 2) - (16 / 2)
+parser.add_argument('--pad', '-p', type=int, default=79)  # (64 / 2) - (16 / 2)
 args = parser.parse_args()
 print args
 
 ch = args.channel
 steps = 256
-relax = 3
+relax = 5
 pad = args.pad
 n_thread = 8
 
@@ -78,9 +78,8 @@ def get_pre_rec(positive, prec_tp, true, recall_tp, steps):
     pre_rec = np.asarray(pre_rec)
     breakeven = np.asarray(breakeven)
     breakeven_pt = np.abs(breakeven[:, 0] - breakeven[:, 1]).argmin()
-    breakeven_pt = breakeven[breakeven_pt]
 
-    return pre_rec, breakeven_pt
+    return pre_rec, breakeven[breakeven_pt], breakeven_pt
 
 
 def draw_pre_rec_curve(pre_rec, breakeven_pt):
@@ -113,7 +112,7 @@ def worker_thread(result_fn_queue):
         pred = np.load(result_fn)
         label = label[pad + args.offset:pad + args.offset + pred.shape[0],
                       pad + args.offset:pad + args.offset + pred.shape[1]]
-        cv.imwrite('%s/label_%s.png' % (out_dir, img_id), label * 125)
+        cv.imwrite('%s/label_%s.png' % (out_dir, img_id), label * 255)
 
         print 'pred_shape:', pred.shape
 
@@ -136,7 +135,7 @@ def worker_thread(result_fn_queue):
                 all_recall_tp[i, c, t] = relax_recall(
                     pred_vals, label_vals, relax)
 
-            pre_rec, breakeven_pt = get_pre_rec(
+            pre_rec, breakeven_pt, pt = get_pre_rec(
                 all_positive[i, c], all_prec_tp[i, c],
                 all_true[i, c], all_recall_tp[i, c], steps)
 
@@ -145,7 +144,7 @@ def worker_thread(result_fn_queue):
             np.save('%s/pre_rec_%d' % (out_dir, c), pre_rec)
             cv.imwrite('%s/pred_%d.png' % (out_dir, c), pred[:, :, c] * 255)
 
-            print img_id, c, breakeven_pt
+            print img_id, c, breakeven_pt, pt
     print 'thread finished'
 
 
@@ -164,11 +163,11 @@ if __name__ == '__main__':
     all_true = np.sum(all_true, axis=0)
     all_recall_tp = np.sum(all_recall_tp, axis=0)
     for c in range(ch):
-        pre_rec, breakeven_pt = get_pre_rec(
+        pre_rec, breakeven_pt, pt = get_pre_rec(
             all_positive[c], all_prec_tp[c],
             all_true[c], all_recall_tp[c], steps)
         draw_pre_rec_curve(pre_rec, breakeven_pt)
-        plt.savefig('%s/pr_curve_%d.png' % (eval_dir, c))
+        plt.savefig('%s/pr_curve_%d_%d.png' % (eval_dir, c, pt))
         np.save('%s/pre_rec_%d' % (eval_dir, c), pre_rec)
 
         print breakeven_pt
