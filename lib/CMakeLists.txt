@@ -2,34 +2,27 @@ cmake_minimum_required(VERSION 2.6)
 project(ssai)
 set(CMAKE_BUILD_TYPE "Release")
 set(CMAKE_CXX_FLAGS_RELEASE "-Wall -O3")
-# set(CMAKE_BUILD_TYPE "Debug")
-# set(CMAKE_CXX_FLAGS_DEBUG "-g")
 
-add_definitions(-DUSE_MKL)
+find_package(OpenCV REQUIRED)
+find_package(Boost COMPONENTS system filesystem python3 REQUIRED)
+find_package(PythonLibs REQUIRED)
+
 set(inc_dirs
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-    /usr/local/include
-    /usr/local/include/opencv
-    /usr/local/include/opencv2
-    /usr/local/cuda/include
-    /opt/intel/mkl/include
-    $ENV{HOME}/Libraries/caffe/build/install/include
-    $ENV{HOME}/Libraries/boost_1_58_0/install/include
-    $ENV{HOME}/Libraries/opencv-2.4.10/install/include
-    $ENV{HOME}/Libraries/opencv-2.4.10/install/include/opencv
-    $ENV{HOME}/Libraries/opencv-2.4.10/install/include/opencv2
-    $ENV{HOME}/Libraries/Boost.NumPy/install/include
-    $ENV{HOME}/.pyenv/versions/anaconda-2.2.0/include/python2.7
-    $ENV{HOME}/.pyenv/versions/anaconda-2.2.0/include
+  /usr/local/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/src
+  ${OpenCV_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
+  ${Boost_NumPy_INCLUDE_DIR}
+  ${PYTHON_INCLUDE_DIRS}
 )
+
 set(lib_dirs
-    /usr/local/lib
-    $ENV{HOME}/Libraries/caffe/build/install/lib
-    $ENV{HOME}/anaconda/lib
-    $ENV{HOME}/Libraries/opencv-2.4.10/install/lib
-    $ENV{HOME}/Libraries/Boost.NumPy/install/lib
-    $ENV{HOME}/Libraries/boost_1_58_0/install/lib
+  /usr/local/lib
+  ${TBB_LIBRARY_DIRS}
+  ${Boost_NumPy_LIBRARY_DIR}
+  ${Caffe_LIBRARY_DIR}
 )
+
 set(libs
     caffe
     glog
