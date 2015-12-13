@@ -44,7 +44,7 @@ $ python scripts/create_dataset.py --dataset merged
 # Create Models
 
 ```
-$ python scripts/create_models.py --seed seeds/model_seeds.json
+$ python scripts/create_models.py --seed seeds/model_seeds.json --caffe_dir $HOME/lib/caffe/build/install
 ```
 
 # Start training

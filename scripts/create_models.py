@@ -11,14 +11,13 @@ parser.add_argument('--seed', '-s', type=str)
 parser.add_argument('--dataset_backend', '-d', type=str, default='lmdb')
 parser.add_argument('--crop_size', '-c', type=int, default=64)
 parser.add_argument('--batch_size', '-b', type=int, default=128)
+parser.add_argument('--caffe_dir', type=str)
 args = parser.parse_args()
 print args
 
 dataset = args.dataset_backend
 crop_size = args.crop_size
 batch_size = args.batch_size
-
-home_dir = subprocess.check_output('echo $HOME', shell=True).strip()
 
 
 def patch_data_layer(number, bottom, object_type):
@@ -607,6 +606,6 @@ if __name__ == '__main__':
         fp.close()
 
         subprocess.check_output(
-            ['python', '%s/Libraries/caffe/python/draw_net.py' % home_dir,
+            ['python', '{}/python/draw_net.py'.format(args.caffe_dir),
              'models/%s/train_test.prototxt' % model_name,
              'models/%s/net.png' % model_name])

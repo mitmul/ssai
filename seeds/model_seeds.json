@@ -16,24 +16,6 @@
         ["loss", ["softmax", 1, [1, 1, 1], -1]],
         ["solver", [0.0005, 0.1, 100000, 400000, 0]]
     ],
-    "Mnih_CNN_S_Maxout_Merged": [
-        ["data", ["merged"]],
-        ["patch_transformer"],
-        ["conv", [64, 9, 1]],
-        ["maxout"],
-        ["pool", [2, 1]],
-        ["conv", [128, 7, 1]],
-        ["maxout"],
-        ["conv", [128, 5, 1]],
-        ["maxout"],
-        ["fc", [4096]],
-        ["relu"],
-        ["dropout"],
-        ["fc", [768]],
-        ["reshape", [3, 16, 16]],
-        ["loss", ["softmax", 1, [1, 1, 1], -1]],
-        ["solver", [0.0005, 1.0, 10000, 2000000, 0]]
-    ],
     "Mnih_CNN_Buildings": [
         ["data", ["buildings"]],
         ["patch_transformer"],
@@ -101,23 +83,6 @@
         ["reshape", [3, 16, 16]],
         ["loss", ["softmax", 1, [1, 1, 1], 0]],
         ["solver", [0.0005, 0.1, 100000, 400000, 5]]
-    ],
-    "Mnih_CNN_IL_Merged": [
-        ["data", ["merged"]],
-        ["patch_transformer"],
-        ["conv", [64, 16, 4]],
-        ["relu"],
-        ["pool", [2, 1]],
-        ["conv", [112, 4, 1]],
-        ["relu"],
-        ["conv", [80, 3, 1]],
-        ["relu"],
-        ["fc", [4096]],
-        ["relu"],
-        ["fc", [768]],
-        ["reshape", [3, 16, 16]],
-        ["loss", ["softmax", 1, [0, 1, 1], -1]],
-        ["solver", [0.0005, 0.1, 100000, 400000, 6]]
     ],
     "VGG_PReLU_Merged": [
         ["data", ["merged"]],
