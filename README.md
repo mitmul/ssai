@@ -1,3 +1,5 @@
+# This repo has been deprecated because whole things are re-implemented by using Chainer and I did refactoring for many codes. So please check this newer version: https://github.com/mitmul/ssai-cnn
+
 # Semantic Segmentation for Aerial Imagery
 Extract building and road from aerial imagery
 
